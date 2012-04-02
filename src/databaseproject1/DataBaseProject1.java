@@ -14,6 +14,10 @@ public class DataBaseProject1 {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
-        //Test2
-        //Test
+        System.out.println("Start");
+        SqlDataReader reader = new SqlDataReader("src/Resource/data.in");
+        reader.openReader();
+        System.out.println(reader.readNextInstruc());
+        System.out.println(reader.readNextInstruc());
+    }
+}

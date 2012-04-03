@@ -8,7 +8,8 @@ package databaseproject1;
  *
  * @author bear
  */
-public interface SqlDataReader {
-    public void openReader();
-    public String readNextInstruc();
+public enum SqlStatementType {
+    CREATE,
+    INSERT,
+    NULL
 }

@@ -15,6 +15,7 @@ import SqlInstructionFetcher.SqlCreateFetcher;
  * @author bear
  */
 //Test
+//Test2
 public class DataBaseProject1 {
 
     /**

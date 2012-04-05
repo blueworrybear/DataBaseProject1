@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package databaseproject1.SqlFilter;
+package SqlFilter;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,24 +11,22 @@ import java.util.regex.Pattern;
  *
  * @author bear
  */
-public class SqlInstrucBackSlashFilter extends SqlInstrucFilter{
+public class SqlInstrucWhiteSpaceFilter extends SqlInstrucFilter{
     
-    public SqlInstrucBackSlashFilter(){
+    public SqlInstrucWhiteSpaceFilter(){
         
     }
     
-    public SqlInstrucBackSlashFilter(String ins){
+    public SqlInstrucWhiteSpaceFilter(String ins){
         super(ins);
     }
     
-    @Override
     public String filter(){
         this.instrucString = instruction.filter();
-        String patternString = "[\\\\]";
+        String patternString = "\\s\\s+";
         Pattern pattern = Pattern.compile(patternString);
         Matcher matcher = pattern.matcher(this.instrucString);
-        this.instrucString = matcher.replaceAll("");
+        this.instrucString = matcher.replaceAll(" ");
         return this.instrucString;
     }
-    
 }

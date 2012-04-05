@@ -2,14 +2,13 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package databaseproject1;
+package databaseproject;
 
 /**
  *
  * @author bear
  */
-public enum SqlStatementType {
-    CREATE,
-    INSERT,
-    NULL
+public interface SqlDataReader {
+    public void openReader();
+    public String readNextInstruc();
 }

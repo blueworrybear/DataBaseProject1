@@ -2,12 +2,13 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package databaseproject1;
+package databaseproject;
 
-import databaseproject1.SqlFilter.SqlInstrucFilter;
-import databaseproject1.SqlFilter.SqlInstrucBackSlashFilter;
-import databaseproject1.SqlFilter.SqlInstrucWhiteSpaceFilter;
-import databaseproject1.SqlFilter.SqlInstruction;
+import SqlFilter.SqlInstrucFilter;
+import SqlFilter.SqlInstrucBackSlashFilter;
+import SqlFilter.SqlInstrucWhiteSpaceFilter;
+import SqlFilter.SqlInstruction;
+import SqlInstructionFetcher.SqlCreateFetcher;
 
 /**
  *
@@ -27,8 +28,10 @@ public class DataBaseProject1 {
         SqlInstrucFilter filtSplash = new SqlInstrucBackSlashFilter();
         filtWhite.setFilter(ins);
         filtSplash.setFilter(filtWhite);
-        System.out.println(filtSplash.filter());
-//        System.out.println(reader.readNextInstruc());
+        SqlCreateFetcher fetcher = new SqlCreateFetcher(filtSplash.filter());
+        System.out.println(fetcher.fetchCommandString());
+        System.out.println(fetcher.fetchClause());
+        //        System.out.println(reader.readNextInstruc());
         SqlExecutionFactory factory = new SqlExecutionFactory();
         factory.setInstruction(reader.readNextInstruc());
         factory.exeSql();

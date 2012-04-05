@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package databaseproject1.SqlFilter;
+package SqlFilter;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

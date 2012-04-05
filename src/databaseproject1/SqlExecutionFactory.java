@@ -13,7 +13,7 @@ import java.util.regex.*;
  *
  * @author bear
  */
-
+        
 public class SqlExecutionFactory {
     
     Object dataBaseHandler;
@@ -42,7 +42,7 @@ public class SqlExecutionFactory {
                 System.out.println(sqlArg);
                 String[] sqlArgSplitted = sqlArg.split(",");  //Split the arguments
                 String[] tableName = sqlIns.split(" ");
-                File saveFile = new File(tableName[2]+".txt");
+                File saveFile = new File("src/Resource/"+tableName[2]+".txt");
                 try {
                      FileWriter columnNameWriter = new FileWriter(saveFile);
                      columnNameWriter.write(sqlArg);
@@ -51,14 +51,9 @@ public class SqlExecutionFactory {
                      Logger.getLogger(SqlExecutionFactory.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 
-                
-                
                 break;
             case INSERT:
                 System.out.println("insert");
-                
-                
-                
                 break;
             default:
                 System.out.println("no");

@@ -4,13 +4,8 @@
  */
 package databaseproject;
 
-import SqlReader.SqlFileDataReader;
 import SqlReader.SqlDataReader;
-import SqlFilter.SqlInstrucFilter;
-import SqlFilter.SqlInstrucBackSlashFilter;
-import SqlFilter.SqlInstrucWhiteSpaceFilter;
-import SqlFilter.SqlInstruction;
-import SqlInstructionFetcher.SqlCreateFetcher;
+import SqlReader.SqlFileDataReader;
 
 /**
  *

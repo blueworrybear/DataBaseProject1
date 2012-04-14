@@ -15,10 +15,11 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 /**
- *
+ * This class is used to execute the instruction.
+ * Which id design with the factory pattern.
  * @author bear
  */
-        
+   
 public class SqlExecutionFactory {
     
     Object dataBaseHandler;

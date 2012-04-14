@@ -35,4 +35,8 @@ public class SqlFetcher {
         }
         return type;
     }
+    
+    public boolean judgeCorrect(){
+        return true;
+    }
 }

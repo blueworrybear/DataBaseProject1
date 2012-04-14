@@ -2,7 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package databaseproject;
+package SqlReader;
+import SqlFilter.SqlInstrucWhiteSpaceFilter;
+import SqlFilter.SqlInstruction;
+import SqlReader.SqlDataReader;
 import java.io.*;
 
 /**
@@ -44,6 +47,10 @@ public class SqlFileDataReader implements SqlDataReader{
         } catch (Exception e) {
             System.out.println("Error");
         }
-        return instruc.toString();
+        
+        SqlInstruction ins = new SqlInstruction(instruc.toString());
+        SqlInstrucWhiteSpaceFilter whiteFilt = new SqlInstrucWhiteSpaceFilter();
+        whiteFilt.setFilter(ins);
+        return whiteFilt.filter();
     }
 }

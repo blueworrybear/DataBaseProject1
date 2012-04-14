@@ -21,7 +21,6 @@ public class SqlInstrucInterpreter {
         boolean matchFound = matcher.find();
         if(matchFound){
             String type = matcher.group(0);
-            System.out.println(type);
             if(type.equals("CREATE")){
                 sqlType = SqlStatementType.CREATE;
             }else if(type.equals("INSERT INTO")){

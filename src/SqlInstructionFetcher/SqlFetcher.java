@@ -9,10 +9,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *
+ * SqlFetcher class is a abstract class that
+ * define the bassic method that should be in the fetcher.
  * @author bear
  */
-public class SqlFetcher {
+public abstract class SqlFetcher {
     
     String statement;
     

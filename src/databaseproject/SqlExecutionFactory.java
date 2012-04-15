@@ -3,8 +3,10 @@
  * and open the template in the editor.
  */
 package databaseproject;
+import SqlFilter.SqlInstruction;
 import SqlInstructionFetcher.SqlCreateFetcher;
 import SqlInstructionFetcher.SqlCreateTableFetcher;
+import SqlInstructionFetcher.SqlInsertIntoFetcher;
 import java.io.File;
 import java.io.FileWriter;
 import java.lang.Exception;
@@ -88,6 +90,20 @@ public class SqlExecutionFactory {
                 break;
             case INSERT:
                 System.out.println("insert");
+                SqlInsertIntoFetcher insertFetcher = new SqlInsertIntoFetcher(this.sqlIns);
+                if (insertFetcher.judgeCorrect()) {
+                    /**
+                     * To subSeven:
+                     * Add your own code below by using insertFetcher.
+                     * The correctness of the instruction has been judge, you
+                     * don't need to worry about that.
+                     * BTW, it is suggested to use iterator to access ArrayList.
+                     * The usage way is much like the example above.
+                     */
+                            
+                }else{
+                    throw invalidException;
+                }
                 break;
             default:
                 System.out.println("no");

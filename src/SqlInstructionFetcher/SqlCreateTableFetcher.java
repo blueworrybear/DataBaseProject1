@@ -1,6 +1,6 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * This Class is design for user
+ * to get the detail of CREATE TABLE instruction.
  */
 package SqlInstructionFetcher;
 
@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
  *
  * @author bear
  */
+
 public class SqlCreateTableFetcher extends SqlCreateFetcher{
     
     private String typePattern = "\\s?\\w+\\s((INT)|(VARCHAR\\s?\\(\\s?\\d+\\s?\\))|(CHAR\\s?\\(\\s?\\d+\\s?\\)))\\s?(PRIMARY\\sKEY)?\\s?,?";
@@ -26,7 +27,14 @@ public class SqlCreateTableFetcher extends SqlCreateFetcher{
         super(instruc);
     }
     
+    /**
+     * This method return the name
+     * of the table which will be create.
+     * @param
+     * @return tableName
+     */
     public String fetchTableName(){
+        /*@param the Table name mentioned in the instruciton.*/
         String tableName = new String();
         String patternStr = "TABLE\\s\\w+\\s";
         Pattern pattern = Pattern.compile(patternStr);
@@ -39,6 +47,15 @@ public class SqlCreateTableFetcher extends SqlCreateFetcher{
         return tableName;
     }
     
+    /**
+     * This method return information of columns and attribute.
+     * The return value is wraped in arraylist, which has several map object.
+     * The map object in the array list have several key, including
+     * Name, Type, Quantity and PRIMARY.
+     * A map obejct in the array list represent a column.
+     * You can retrieve the column information with the keys mention above.
+     * @return 
+     */
     public ArrayList<Map<String,Object>> getColums(){
         String patternStr = this.typePattern;
         Pattern pattern = Pattern.compile(patternStr);
@@ -86,6 +103,11 @@ public class SqlCreateTableFetcher extends SqlCreateFetcher{
         return colums;
     }
     
+    /**
+     *  This method is used to judge whether the input instruction is 
+     * ivalid or not.
+     * @return 
+     */
     @Override
     public boolean judgeCorrect(){
         System.out.println(this.statement.toUpperCase());

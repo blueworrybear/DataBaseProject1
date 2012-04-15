@@ -49,6 +49,7 @@ public class SqlExecutionFactory {
                 SqlCreateFetcher fetch = new SqlCreateFetcher(this.sqlIns);
                 if(fetch.fetchClause().equals("TABLE")){
                     System.out.println("create table");
+                    
                     /*
                      * tableFetcher is an object to 
                      * let you fetch the detail of the 
@@ -90,6 +91,8 @@ public class SqlExecutionFactory {
                 break;
             case INSERT:
                 System.out.println("insert");
+                
+                /*This is the object that let you access the information of the instruction.*/
                 SqlInsertIntoFetcher insertFetcher = new SqlInsertIntoFetcher(this.sqlIns);
                 if (insertFetcher.judgeCorrect()) {
                     /**
@@ -100,7 +103,7 @@ public class SqlExecutionFactory {
                      * BTW, it is suggested to use iterator to access ArrayList.
                      * The usage way is much like the example above.
                      */
-                            
+                    
                 }else{
                     throw invalidException;
                 }

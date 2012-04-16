@@ -3,19 +3,12 @@
  * and open the template in the editor.
  */
 package databaseproject;
-import SqlFilter.SqlInstruction;
 import SqlInstructionFetcher.SqlCreateFetcher;
 import SqlInstructionFetcher.SqlCreateTableFetcher;
 import SqlInstructionFetcher.SqlInsertIntoFetcher;
-import java.io.File;
-import java.io.FileWriter;
-import java.lang.Exception;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 /**
  * This class is used to execute the instruction.
  * Which id design with the factory pattern.

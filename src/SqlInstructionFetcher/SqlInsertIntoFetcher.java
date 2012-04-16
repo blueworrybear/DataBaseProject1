@@ -66,7 +66,7 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
      * Notice that the element type in the Array list is Object type.
      * The casting is the response of the caller.
      * Besides, before calling this method, you may call fetchInsertSequence()
-     * before to make it sure thaht the order to insert.
+     * before to make it sure that the order to insert.
      * @return 
      */
     public ArrayList<Object> fetchInsertValue(){

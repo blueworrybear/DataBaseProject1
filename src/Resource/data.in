@@ -1,3 +1,12 @@
+CREATE TABLE Department (
+      department_name varchar(20),
+      type char(1),
+      num_employees int,
+      code char(10),
+      city varchar(15),
+   );
+INSERT INTO PERSON (person_id, name, gender)
+   VALUES (155, 'Mary', 'F');
 INSERT INTO Person
 VALUES (154, 'John', 'M');
 INSERT INTO PERSON (person_id, name, gender)

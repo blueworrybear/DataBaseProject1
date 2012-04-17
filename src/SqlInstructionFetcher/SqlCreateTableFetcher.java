@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 public class SqlCreateTableFetcher extends SqlCreateFetcher{
     
-    private String typePattern = "\\s?\\w+\\s((INT)|(VARCHAR\\s?\\(\\s?\\d+\\s?\\))|(CHAR\\s?\\(\\s?\\d+\\s?\\)))\\s?(PRIMARY\\sKEY)?\\s?,?";
+    private String typePattern = "\\s?\\w+\\s((INT)|(VARCHAR\\s?\\(\\s?\\d+\\s?\\))|(CHAR\\s?\\(\\s?\\d+\\s?\\)))\\s?(PRIMARY\\sKEY)?\\s?,";
     
     public SqlCreateTableFetcher(SqlFetcher fetcher){
         super(fetcher.statement);
@@ -111,7 +111,7 @@ public class SqlCreateTableFetcher extends SqlCreateFetcher{
     @Override
     public boolean judgeCorrect(){
         System.out.println(this.statement.toUpperCase());
-        String patternStr = "^CREATE\\sTABLE\\s\\w+\\s?\\(\\s?("+this.typePattern+")+\\);";
+        String patternStr = "^CREATE\\sTABLE\\s\\w+\\s?\\(\\s?("+this.typePattern+")*\\s?("+this.typePattern+"?)?\\s?\\);";
         Pattern pattern = Pattern.compile(patternStr);
         Matcher matcher = pattern.matcher(this.statement.toUpperCase());
         boolean matchFound = matcher.find();

@@ -14,6 +14,9 @@ import java.util.regex.Pattern;
  */
 public class SqlInsertIntoFetcher extends SqlFetcher{
     
+    String typeStringPattern1 = "((\\s?[\"\']([.^[\"\']]|(\\\")|(\\\'))+[\"\']\\s?,\\s?)|(\\s?\\d+\\s?,\\s?))";
+    String typeStringPattern2 = "((\\s?[\"\']([.^[\"\']]|(\\\")|(\\\'))+[\"\']\\s?\\s?)|(\\s?\\d+\\s?\\s?))";
+    
     public SqlInsertIntoFetcher(String instruc){
         super(instruc);
     }
@@ -97,8 +100,10 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
     
     @Override
     public boolean judgeCorrect(){
-        String patternStr = "INSERT\\sINTO\\s\\w+\\s(\\((\\s?\\w+\\s?,?\\s?)+\\))?\\s?VALUES\\s?(\\(((\\s?[\"\']{1}\\s?.+\\s?[\"\']{1}?\\s?,?\\s?)|(\\s?\\d+\\s?,\\s?))+\\)){1}\\s?;\\s?";
+//        String patternStr = "INSERT\\sINTO\\s\\w+\\s(\\((\\s?\\w+\\s?,?\\s?)+\\))?\\s?VALUES\\s?(\\(((\\s?[\"\']{1}\\s?.+\\s?[\"\']{1}\\s?,?\\s?)|(\\s?\\d+\\s?,\\s?))*\\)){1}\\s?;\\s?";
+        String patternStr = "INSERT\\sINTO\\s\\w+\\s(\\((\\s?\\w+\\s?,?\\s?)+\\))?\\s?VALUES\\s?(\\("+typeStringPattern1+"*"+typeStringPattern2+"?\\)){1}\\s?;\\s?";
         Pattern pattern = Pattern.compile(patternStr);
+        System.out.println(pattern.toString());
         Matcher matcher = pattern.matcher(this.statement.toUpperCase());
         boolean matcher_correct = matcher.find();
         

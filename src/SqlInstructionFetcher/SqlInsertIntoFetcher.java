@@ -14,13 +14,12 @@ import java.util.regex.Pattern;
  */
 public class SqlInsertIntoFetcher extends SqlFetcher{
     
+    String typeStringPattern1 = "((\\s?[\"\']([.^[\"\']]|(\\\")|(\\\'))+[\"\']\\s?,\\s?)|(\\s?\\d+\\s?,\\s?))";
+    String typeStringPattern2 = "((\\s?[\"\']([.^[\"\']]|(\\\")|(\\\'))+[\"\']\\s?\\s?)|(\\s?\\d+\\s?\\s?))";
+    
     public SqlInsertIntoFetcher(String instruc){
         super(instruc);
     }
-    
-    String patternStr = "INSERT\\sINTO\\s\\w+\\s(\\((\\s?\\w+\\s?,?\\s?)+\\))?\\s?VALUES\\s?(\\(((\\s?[\"\']{1}\\s?.+\\s?[\"\']{1}?\\s?,?\\s?)|(\\s?\\d+\\s?,\\s?))+\\)){1}\\s?;\\s?";
-    String typeStringPattern1 = "((\\s?[\"\']([.^[\"\']]|(\\\")|(\\\'))+[\"\']\\s?,\\s?)|(\\s?\\d+\\s?,\\s?))";
-    String typeStringPattern2 = "((\\s?[\"\']([.^[\"\']]|(\\\")|(\\\'))+[\"\']\\s?\\s?)|(\\s?\\d+\\s?\\s?))";
     
     /**
      * This method can fetch the Table name.

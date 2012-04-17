@@ -18,6 +18,10 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
         super(instruc);
     }
     
+    String patternStr = "INSERT\\sINTO\\s\\w+\\s(\\((\\s?\\w+\\s?,?\\s?)+\\))?\\s?VALUES\\s?(\\(((\\s?[\"\']{1}\\s?.+\\s?[\"\']{1}?\\s?,?\\s?)|(\\s?\\d+\\s?,\\s?))+\\)){1}\\s?;\\s?";
+    String typeStringPattern1 = "((\\s?[\"\']([.^[\"\']]|(\\\")|(\\\'))+[\"\']\\s?,\\s?)|(\\s?\\d+\\s?,\\s?))";
+    String typeStringPattern2 = "((\\s?[\"\']([.^[\"\']]|(\\\")|(\\\'))+[\"\']\\s?\\s?)|(\\s?\\d+\\s?\\s?))";
+    
     /**
      * This method can fetch the Table name.
      * @return 
@@ -66,7 +70,7 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
      * Notice that the element type in the Array list is Object type.
      * The casting is the response of the caller.
      * Besides, before calling this method, you may call fetchInsertSequence()
-     * before to make it sure thaht the order to insert.
+     * before to make it sure that the order to insert.
      * @return 
      */
     public ArrayList<Object> fetchInsertValue(){
@@ -97,8 +101,10 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
     
     @Override
     public boolean judgeCorrect(){
-        String patternStr = "INSERT\\sINTO\\s\\w+\\s(\\((\\s?\\w+\\s?,?\\s?)+\\))?\\s?VALUES\\s?(\\(((\\s?[\"\']{1}\\s?.+\\s?[\"\']{1}?\\s?,?\\s?)|(\\s?\\d+\\s?,\\s?))+\\)){1}\\s?;\\s?";
+//        String patternStr = "INSERT\\sINTO\\s\\w+\\s(\\((\\s?\\w+\\s?,?\\s?)+\\))?\\s?VALUES\\s?(\\(((\\s?[\"\']{1}\\s?.+\\s?[\"\']{1}\\s?,?\\s?)|(\\s?\\d+\\s?,\\s?))*\\)){1}\\s?;\\s?";
+        String patternStr = "INSERT\\sINTO\\s\\w+\\s(\\((\\s?\\w+\\s?,?\\s?)+\\))?\\s?VALUES\\s?(\\("+typeStringPattern1+"*"+typeStringPattern2+"?\\)){1}\\s?;\\s?";
         Pattern pattern = Pattern.compile(patternStr);
+        System.out.println(pattern.toString());
         Matcher matcher = pattern.matcher(this.statement.toUpperCase());
         boolean matcher_correct = matcher.find();
         

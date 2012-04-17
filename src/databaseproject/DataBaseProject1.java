@@ -6,6 +6,8 @@ package databaseproject;
 
 import SqlReader.SqlDataReader;
 import SqlReader.SqlFileDataReader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -18,7 +20,7 @@ public class DataBaseProject1 {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         System.out.println("Start");
         /*
          * NOTICE:
@@ -29,8 +31,16 @@ public class DataBaseProject1 {
         reader.openReader();
         SqlExecutionFactory factory = new SqlExecutionFactory();
         factory.setInstruction(reader.readNextInstruc());
-        factory.exeSql();
+        try {
+            factory.exeSql();
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
         factory.setInstruction(reader.readNextInstruc());
-        factory.exeSql();
+        try {
+            factory.exeSql();
+        } catch (Exception ex) {
+            System.out.print("error");
+        }
     }
 }

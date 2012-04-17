@@ -1,0 +1,4 @@
+PERSON;
+PERSON_ID:INT:0:true,
+NAME:VARCHAR:20:false,
+GENDER:CHAR:1:false,

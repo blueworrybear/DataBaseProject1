@@ -3,12 +3,20 @@
  * and open the template in the editor.
  */
 package databaseproject;
+import SqlFilter.SqlInstruction;
 import SqlInstructionFetcher.SqlCreateFetcher;
 import SqlInstructionFetcher.SqlCreateTableFetcher;
 import SqlInstructionFetcher.SqlInsertIntoFetcher;
+import SqlManipulation.SqlCreateTableExec;
+import java.io.File;
+import java.io.FileWriter;
+import java.lang.Exception;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /**
  * This class is used to execute the instruction.
  * Which id design with the factory pattern.
@@ -59,9 +67,9 @@ public class SqlExecutionFactory {
                          * Below is an example of how to get the 
                          * columns in the CREATE TABLE instruction.
                          */
-                        ArrayList list =  tableFetcher.getColums();
+                        ArrayList list =  tableFetcher.getColumns();
                         Iterator it = list.iterator();
-                        while (it.hasNext()) {                            
+                      /*  while (it.hasNext()) {                            
                             Map map = (Map) it.next();
                             System.out.print("NAME:"+(String)map.get("Name"));
                             System.out.print("    TYPE:"+(String)map.get("Type"));
@@ -71,7 +79,13 @@ public class SqlExecutionFactory {
                             }else{
                                 System.out.println();
                             }
+                        }*/
+                        
+                        SqlCreateTableExec sqlExec = new SqlCreateTableExec(tableFetcher); //Initialize a SQL Executer
+                        if(sqlExec.exec()){ //Start Crate Manipulation 
+                            sqlExec.display();
                         }
+                        
                         /*
                          * END of example.
                          */

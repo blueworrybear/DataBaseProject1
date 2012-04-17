@@ -105,20 +105,9 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
 //        String patternStr = this.typeStringPattern1;
 //        String patternStr = "[A-Za-z0-9(),&&[^\'\"]]";
         Pattern pattern = Pattern.compile(patternStr);
-        System.out.println(this.statement.toUpperCase());
-        System.out.println(pattern.toString());
         Matcher matcher = pattern.matcher(this.statement.toUpperCase());
         boolean matcher_correct = matcher.find();
-//        
-//        if (matcher_correct) {
-//            System.out.println(matcher.group(0));
-//            while (matcher.find()) {                
-//                System.out.println(matcher.group(0));
-//            }
-//        }
-        
         
         return matcher_correct;
-//            return true;
     }
 }

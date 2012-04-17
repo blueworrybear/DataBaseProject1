@@ -56,7 +56,7 @@ public class SqlCreateTableFetcher extends SqlCreateFetcher{
      * You can retrieve the column information with the keys mention above.
      * @return 
      */
-    public ArrayList<Map<String,Object>> getColums(){
+    public ArrayList<Map<String,Object>> getColumns(){
         String patternStr = this.typePattern;
         Pattern pattern = Pattern.compile(patternStr);
         Matcher matcher = pattern.matcher(this.statement.toUpperCase());

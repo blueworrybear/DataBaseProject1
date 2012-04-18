@@ -215,4 +215,102 @@ public class SqlInsertTableExec {
         return true;
     }
     
+    private void printSplitLine(int i){
+        
+        for(int a=0;a<i+sqlInfo.fetchInsertSequence().size()+1;a++){
+            System.out.print("-");
+        }
+        
+        System.out.println("");
+        
+    }
+    
+    
+    public void display(){
+        
+        ArrayList<Map<String,Object>> colInfo = parseColNameFile();
+        
+        ArrayList<String> colSeq = sqlInfo.fetchInsertSequence();
+        
+        ArrayList<Object> colValue = sqlInfo.fetchInsertValue();
+        
+        Iterator it;
+        Map s;
+        
+        
+        int i,len=0,j,sumlen=0;
+        
+        it = colInfo.iterator();
+        
+        System.out.println("-------------------------");
+        System.out.print("|");
+        while(it.hasNext()){
+            
+            s  = (Map)it.next();
+            i = colSeq.indexOf(s.get("Name").toString());
+            
+            System.out.print(s.get("Name"));
+            
+            
+                len = colValue.get(i).toString().length()-s.get("Name").toString().length();
+                
+                
+                if(len>0){
+                    
+                    sumlen+=colValue.get(i).toString().length();
+                    
+                    for(j=0;j<len;j++){
+                        System.out.print(" ");
+                    }
+                }else
+                    sumlen+=s.get("Name").toString().length();
+                
+            
+            
+            System.out.print("|");
+            
+            
+            
+            
+            
+        }
+        System.out.println("");
+        
+        printSplitLine(sumlen);
+        
+        System.out.print("|");
+        it = colInfo.iterator();
+        
+        while(it.hasNext()){
+            
+            s = (Map)it.next();
+            i = colSeq.indexOf(s.get("Name").toString());
+            System.out.print(colValue.get(i));
+            len = colValue.get(i).toString().length()-s.get("Name").toString().length();
+            
+            if(len<0){
+                len = -len;
+                
+                for(j=0;j<len;j++){
+                    System.out.print(" ");
+                }
+                
+            }
+            
+            System.out.print("|");
+            
+            
+            
+            
+            
+            
+        }
+        
+        System.out.println("\n-------------------------");
+        
+    }
+    
+    
+    
+    
 }

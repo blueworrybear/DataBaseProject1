@@ -13,6 +13,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -73,7 +75,7 @@ public class SqlInsertTableExec {
                         
                         map.put("Name", tok[0]);
                         map.put("Type", tok[1]);
-                        map.put("Quantity", tok[2]);
+                        map.put("Quantity", Integer.parseInt(tok[2]));
                         if(tok[3].equals("true"))
                             map.put("PRIMARY", true);
                         else
@@ -119,10 +121,9 @@ public class SqlInsertTableExec {
         
         ArrayList<Object> insertContent;
         ArrayList<Map<String,Object>>  colInfo;
-        ArrayList<String> colValue = new ArrayList<String>();
+        ArrayList<Object> colValue = new ArrayList<Object>();
         ArrayList<String> colSeq;
-        //ArrayList<Integer> indexSeq = new ArrayList<Integer>();
-        String primaryKeySet="";
+        StringBuffer primaryKeySet = new StringBuffer();
         Iterator it;
         
         prepareNoFile();
@@ -130,148 +131,87 @@ public class SqlInsertTableExec {
         if(!colFile.exists()){
             System.out.println("ERROR: Table Not exists!!!!");
             return false;
-        }else{
+        }else
+        {
             contentFile = new File(tableName+"_content.txt");
-            
-            //try {
-             //   FileWriter fw = new FileWriter(contentFile,true);
-                colInfo = parseColNameFile();
-                Iterator i = sqlInfo.fetchInsertValue().iterator();
-                
-                while(i.hasNext()){
-                    
-                    
-                    colValue.add(i.next().toString());
-                    
-                }
-                
-                
-                if(!sqlInfo.fetchInsertSequence().isEmpty()){ 
-                    
-                    colSeq = sqlInfo.fetchInsertSequence();
-                    
-                    it = colInfo.iterator();
-                    
-                    //Iterator it2 = colInfo.iterator();
-                }//If insert has sepuence.
-                else{
-                    colSeq = new ArrayList<String>();
-                    Iterator it2 = colInfo.iterator();
-                    
-                    while(it2.hasNext()){
-                        Map map = (Map)it2.next();
+            colInfo = parseColNameFile();
+             
+            if(sqlInfo.fetchInsertSequence().isEmpty()){ 
+                  colSeq = new ArrayList<String>();  
+                  it = colInfo.iterator();  
+                  while(it.hasNext()){
+                        Map map = (Map)it.next();
                         colSeq.add((String)map.get("Name"));
                         
-                    }
+                  }
                     
+            }else{
+                 colSeq = sqlInfo.fetchInsertSequence();
+            }
+             colValue =  sqlInfo.fetchInsertValue(); 
+            if(colInfo.size()!=colValue.size()){
+                    System.out.println("ERROR: Value number incorrect!!!");
+                    System.out.println("ColInfo="+colInfo.size()+" and inputValue="+colValue.size());
+                    return false;
+            }else
+            {      
+                Object value;
+                it = colInfo.iterator();
+                while(it.hasNext()){
+                     Map map = (Map)it.next();
+                     value = colValue.get((Integer)colSeq.indexOf(map.get("Name")));
+                     if( map.get("Type").equals("INT") )
+                     {
+                         if( !value.getClass().toString().equals("class java.lang.Integer") )
+                         {
+                             System.out.println("ERROR: Not Integer");
+                             return false;
+                         }
+                     }else
+                     {
+//                         System.out.println("Else::"+value);
+                         //System.out.println(map.get("Quantity"));
+                         if( ((String)value).replaceAll("(^\'|^\"|\'$|\"$)", "").length() > ((Integer)map.get("Quantity")) )
+                         {
+                             System.out.println("ERROR!!! Argument Too LONG!!!"+value+":"+map.get("Quantity"));
+                             return false;
+                         }
+                     }
+                     if((Boolean)map.get("PRIMARY"))
+                     {
+                         primaryKeySet.append(value);
+                     }
+                     //System.out.println(value);
                 }
-                    
-                    
-                    
-                    if(colInfo.size()!=colValue.size()){
-                        System.out.println("ERROR: Value number incorrect!!!");
-                        System.out.println("ColInfo="+colInfo.size()+" and inputValue="+colValue.size());
-                        return false;
-                    }else{
-                        
+                
+                if(hash.containsKey(primaryKeySet.toString()))
+                {
+                     System.out.println("ERROR!! PRIMARY KEY DUPLICATED!!!!!!");
+                     return false;
+                }else
+                {
+                     hash.put(primaryKeySet.toString(),0);
+                     try {
+                        FileWriter fw = new FileWriter(contentFile,true);
                         it = colInfo.iterator();
-                      
-                       
-                        while(it.hasNext()){
-                           
-                            String str2;
-                            Map map = (HashMap)it.next();
-                            if("INT".equals((String)map.get("Type"))){
-                                if(colValue.get((Integer)colSeq.indexOf(map.get("Name")))!=null){
-                                    
-                                    str2 = (String)colValue.get((Integer)colSeq.indexOf(map.get("Name")));    
-                                    
-                                    if(!str2.matches("^[0-9]+$")){
-                                        
-                                        System.out.println("ERROR: Not Integer");
-                                        
-                                        return false;
-                                    }
-                                    
-                                }
-                            }else{
-                                
-                                str2 = (String)colValue.get((Integer)colSeq.indexOf(map.get("Name"))); 
-                                
-                                if(str2.length()>((Integer)map.get("Quantity"))){
-                                    System.out.println("ERROR!!! Argument Too LONG!!!");
-                                }
-                                
-                                
-                            }
-                            
-                            if((Boolean)map.get("PRIMARY")){
-                                
-                                
-                                primaryKeySet+=(";;"+(String)colValue.get(colSeq.indexOf(map.get("PRIMARY"))));
-                                
-                            }
-                                
-                            
-                            
-                            
+                        while(it.hasNext())
+                        {
+                            Map m = (Map)it.next();
+                            value = colValue.get(colSeq.indexOf(m.get("Name")));
+                            fw.append(value+",");
                         }
-                        
-                        
-                       if(hash.containsKey(primaryKeySet)){
-                           System.out.println("ERROR!! PRIMARY KEY DUPLICATED!!!!!!");
-                           return false;
-                       }else{
-                           hash.put(primaryKeySet,0);
-                       }
-                       
-                       it = colInfo.iterator();
-                try {
-                    FileWriter fw = new FileWriter(contentFile,true);
-                    
-                    while(it.hasNext()){
-                           
-                          Map m = (Map)it.next();
-                          
-                          String s = (String) colValue.get(colSeq.indexOf(m.get("Name")));
-                          
-                          fw.append(s+",");
-                          
-                           
-                       }
-                    
-                    fw.close();
-                    
-                    
-                } catch (IOException ex) {
-                   
-                    Logger.getLogger(SqlInsertTableExec.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                       
-                       
-                       
-                        
-                       //fw.close();
-                       SqlExecutionFactory.record.addSqlContentHashMap(tableName,hash);
-                       
-                    
-                       
-                    }
-                    
-                    
-                    
-                    
-                    
+                        fw.close();
+                     }catch (IOException ex) {
+                        Logger.getLogger(SqlInsertTableExec.class.getName()).log(Level.SEVERE, null, ex);
+                     }
+                }  
                 
-                
-                
-           // } catch (IOException ex) {
-           //     Logger.getLogger(SqlInsertTableExec.class.getName()).log(Level.SEVERE, null, ex);
-           // }
+            }
             
-        }
+            
+        } 
         
-        
+        SqlExecutionFactory.record.addSqlContentHashMap(tableName,hash);
         return true;
     }
     

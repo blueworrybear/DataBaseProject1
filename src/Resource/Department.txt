@@ -1,1 +1,0 @@
-       department_name varchar(20),       type char(1),       num_employees int,       code char(10),       city varchar(15)    

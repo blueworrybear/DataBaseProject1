@@ -8,6 +8,7 @@ import SqlInstructionFetcher.SqlCreateFetcher;
 import SqlInstructionFetcher.SqlCreateTableFetcher;
 import SqlInstructionFetcher.SqlInsertIntoFetcher;
 import SqlManipulation.SqlCreateTableExec;
+import SqlManipulation.SqlInsertTableExec;
 import java.io.File;
 import java.io.FileWriter;
 import java.lang.Exception;
@@ -24,6 +25,8 @@ import java.util.logging.Logger;
  */
    
 public class SqlExecutionFactory {
+    
+    public static queryDataRecord record = new queryDataRecord();
     
     Object dataBaseHandler;
     private SqlStatementType sqlType;
@@ -93,6 +96,8 @@ public class SqlExecutionFactory {
                     }else{
                         throw invalidException;
                     }
+                }else{
+                    throw invalidException;
                 }
                 
                 break;
@@ -110,17 +115,22 @@ public class SqlExecutionFactory {
                      * BTW, it is suggested to use iterator to access ArrayList.
                      * The usage way is much like the example above.
                      */
+                    System.out.println(this.sqlIns);
+                    SqlInsertTableExec sqlExec = new SqlInsertTableExec(insertFetcher);
+                    sqlExec.exec();
+                    
+                    
                     
                 }else{
                     throw invalidException;
                 }
                 break;
             default:
-                System.out.println("no");
-                if(this.sqlIns.equals("")){
-                    System.out.println("end");
-                }
-                break;
+                throw invalidException;
+//                if(this.sqlIns.equals("")){
+//                    System.out.println("end");
+//                }
+//                break;
         }
     }
     

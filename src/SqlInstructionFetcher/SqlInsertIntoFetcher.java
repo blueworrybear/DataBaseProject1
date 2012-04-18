@@ -14,8 +14,8 @@ import java.util.regex.Pattern;
  */
 public class SqlInsertIntoFetcher extends SqlFetcher{
     
-    String typeStringPattern1 = "((\\s?[\"\']([.^[\"\']]|(\\\")|(\\\'))+[\"\']\\s?,\\s?)|(\\s?\\d+\\s?,\\s?))";
-    String typeStringPattern2 = "((\\s?[\"\']([.^[\"\']]|(\\\")|(\\\'))+[\"\']\\s?\\s?)|(\\s?\\d+\\s?\\s?))";
+    String typeStringPattern1 = "((\\s?[\"\']([A-Za-z0-9(),!@#$%^&*_+-=]|(\\\\\")|(\\\\\'))+[\"\']\\s?,\\s?)|(\\s?\\d+\\s?,\\s?))";
+    String typeStringPattern2 = "((\\s?[\"\']([A-Za-z0-9(),!@#$%^&*_+-=]|(\\\\\")|(\\\\\'))+[\"\']\\s?)|(\\s?\\d+\\s?))";
     
     public SqlInsertIntoFetcher(String instruc){
         super(instruc);
@@ -87,7 +87,7 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
             Matcher _matcher = _pattern.matcher(values);
             while (_matcher.find()) {                
                 String value = _matcher.group(0);
-                Matcher tmp_matcher = Pattern.compile("\\d+").matcher(value);
+                Matcher tmp_matcher = Pattern.compile("^\\d+$").matcher(value);
                 if (tmp_matcher.find()) {
                     insertValues.add(Integer.valueOf(value));
                 }else{
@@ -103,14 +103,13 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
 //        String patternStr = "INSERT\\sINTO\\s\\w+\\s(\\((\\s?\\w+\\s?,?\\s?)+\\))?\\s?VALUES\\s?(\\(((\\s?[\"\']{1}\\s?.+\\s?[\"\']{1}\\s?,?\\s?)|(\\s?\\d+\\s?,\\s?))*\\)){1}\\s?;\\s?";
         String patternStr = "INSERT\\sINTO\\s\\w+\\s(\\((\\s?\\w+\\s?,?\\s?)+\\))?\\s?VALUES\\s?(\\("+typeStringPattern1+"*"+typeStringPattern2+"?\\)){1}\\s?;\\s?";
         Pattern pattern = Pattern.compile(patternStr);
-        System.out.println(pattern.toString());
+        //System.out.println(pattern.toString());
         Matcher matcher = pattern.matcher(this.statement.toUpperCase());
         boolean matcher_correct = matcher.find();
         
         if (matcher_correct) {
 //            System.out.println(matcher.group(0));
         }
-        
         
         return matcher_correct;
     }

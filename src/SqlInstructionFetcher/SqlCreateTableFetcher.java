@@ -18,6 +18,8 @@ import java.util.regex.Pattern;
 public class SqlCreateTableFetcher extends SqlCreateFetcher{
     
     private String typePattern = "\\s?\\w+\\s((INT)|(VARCHAR\\s?\\(\\s?\\d+\\s?\\))|(CHAR\\s?\\(\\s?\\d+\\s?\\)))\\s?(PRIMARY\\sKEY)?\\s?,";
+    private String typePattern2 = "\\s?\\w+\\s((INT)|(VARCHAR\\s?\\(\\s?\\d+\\s?\\))|(CHAR\\s?\\(\\s?\\d+\\s?\\)))\\s?(PRIMARY\\sKEY)?\\s?";
+    
     
     public SqlCreateTableFetcher(SqlFetcher fetcher){
         super(fetcher.statement);
@@ -56,8 +58,8 @@ public class SqlCreateTableFetcher extends SqlCreateFetcher{
      * You can retrieve the column information with the keys mention above.
      * @return 
      */
-    public ArrayList<Map<String,Object>> getColums(){
-        String patternStr = this.typePattern;
+    public ArrayList<Map<String,Object>> getColumns(){
+        String patternStr = this.typePattern2;
         Pattern pattern = Pattern.compile(patternStr);
         Matcher matcher = pattern.matcher(this.statement.toUpperCase());
         ArrayList<Map<String,Object>> colums = new ArrayList<Map<String, Object>>();
@@ -94,8 +96,7 @@ public class SqlCreateTableFetcher extends SqlCreateFetcher{
                 map.put("PRIMARY",true);
             }else{
                 map.put("PRIMARY",false);
-            }
-                           
+            }              
             colums.add(map);
         }
         

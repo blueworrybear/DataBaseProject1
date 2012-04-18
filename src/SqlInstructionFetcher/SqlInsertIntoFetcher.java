@@ -102,6 +102,8 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
     public boolean judgeCorrect(){
 //        String patternStr = "INSERT\\sINTO\\s\\w+\\s(\\((\\s?\\w+\\s?,?\\s?)+\\))?\\s?VALUES\\s?(\\(((\\s?[\"\']{1}\\s?.+\\s?[\"\']{1}\\s?,?\\s?)|(\\s?\\d+\\s?,\\s?))*\\)){1}\\s?;\\s?";
         String patternStr = "INSERT\\sINTO\\s\\w+\\s(\\((\\s?\\w+\\s?,?\\s?)+\\))?\\s?VALUES\\s?(\\("+typeStringPattern1+"*"+typeStringPattern2+"?\\)){1}\\s?;\\s?";
+//        String patternStr = this.typeStringPattern1;
+//        String patternStr = "[A-Za-z0-9(),&&[^\'\"]]";
         Pattern pattern = Pattern.compile(patternStr);
         //System.out.println(pattern.toString());
         Matcher matcher = pattern.matcher(this.statement.toUpperCase());

@@ -10,7 +10,7 @@ CREATE TABLE Department (
 INSERT INTO Department
 VALUES ('Physics', 'S', 45, 'ZRH1354', 'Hsinchu');
 INSERT INTO Person
-VALUES (154, 'John', 'M');
+VALUES (154, 'John', 'M',);
 INSERT INTO PERSON (person_id, gender, name)
    VALUES (155, 'F', 'Mary');
 INSERT INTO PERSON (person_id, gender, name)

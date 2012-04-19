@@ -44,7 +44,7 @@ public class SqlInsertTableExec {
             ArrayList _list = this.parseColNameFile();
             Iterator _it = _list.iterator();
             Iterator _info_it = info_list.iterator();
-            while (_it.hasNext()) {                
+            while (_it.hasNext()&&_info_it.hasNext()) {                
                 Map<String,Object> _map = (Map<String,Object>)_it.next();
                 this.value_pair.put(_map.get("Name").toString(),(_info_it.next()));
             }

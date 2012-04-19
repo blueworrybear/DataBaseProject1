@@ -52,7 +52,7 @@ public class SqlExecutionFactory {
             case CREATE:
                 SqlCreateFetcher fetch = new SqlCreateFetcher(this.sqlIns);
                 if(fetch.fetchClause().equals("TABLE")){
-                    System.out.println("create table");
+//                    System.out.println("create table");
                     
                     /*
                      * tableFetcher is an object to 
@@ -102,7 +102,7 @@ public class SqlExecutionFactory {
                 
                 break;
             case INSERT:
-                System.out.println("insert");
+//                System.out.println("insert");
                 
                 /*This is the object that let you access the information of the instruction.*/
                 SqlInsertIntoFetcher insertFetcher = new SqlInsertIntoFetcher(this.sqlIns);
@@ -118,6 +118,7 @@ public class SqlExecutionFactory {
                     System.out.println(this.sqlIns);
                     SqlInsertTableExec sqlExec = new SqlInsertTableExec(insertFetcher);
                     sqlExec.exec();
+                    sqlExec.display();
                     
                 }else{
                     throw invalidException;

@@ -36,8 +36,7 @@ public class DataBaseProject1 {
         try {
             factory.exeSql();
         } catch (Exception ex) {
-            System.out.println("");
-            System.out.println(ex.getMessage());
+            System.out.println(ex);
         }
         }
 //        factory.setInstruction(reader.readNextInstruc());

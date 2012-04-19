@@ -13,6 +13,16 @@ INSERT INTO Person
 VALUES (154, 'John', 'M');
 INSERT INTO PERSON (person_id, gender, name)
    VALUES (155, 'F', 'Mary');
+INSERT INTO PERSON (person_id, gender, name)
+   VALUES (156, 'F', 'Mary1');
+INSERT INTO PERSON (person_id, gender, name)
+   VALUES (157, 'F', 'Mary2');
+INSERT INTO PERSON (person_id, gender, name)
+   VALUES (158, 'F', 'Mary3');
+INSERT INTO PERSON (person_id, gender, name)
+   VALUES (150, 'M', 'aaaaaaaaaaaaaaaJohn1');
+INSERT INTO PERSON (person_id, gender, name)
+   VALUES (140, 'M', 'aaa');
 
 
 

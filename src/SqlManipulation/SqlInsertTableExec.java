@@ -7,10 +7,7 @@ package SqlManipulation;
 import SqlInstructionFetcher.SqlInsertIntoFetcher;
 import databaseproject.SqlExecutionFactory;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -25,7 +22,8 @@ public class SqlInsertTableExec {
     SqlInsertIntoFetcher sqlInfo;
     String tableName;
     File colFile,contentFile;
-    HashMap<String,Integer> hash;
+    HashMap<String,Object> hash;
+    Map<String,Object> value_pair;
     
     
     
@@ -39,7 +37,30 @@ public class SqlInsertTableExec {
         
         colFile = new File(tableName+".txt");
         
+        this.value_pair = new HashMap<String, Object>();
         
+        ArrayList info_list = sqlInfo.fetchInsertValue();
+        if (sqlInfo.fetchInsertSequence().size() == 0) {
+            ArrayList _list = this.parseColNameFile();
+            Iterator _it = _list.iterator();
+            Iterator _info_it = info_list.iterator();
+            while (_it.hasNext()) {                
+                Map<String,Object> _map = (Map<String,Object>)_it.next();
+                this.value_pair.put(_map.get("Name").toString(),(_info_it.next()));
+            }
+        }else{
+            Iterator _it = sqlInfo.fetchInsertSequence().iterator();
+            Iterator _info_it = info_list.iterator();
+            while(_it.hasNext() && _info_it.hasNext()){
+                this.value_pair.put(_it.next().toString(), _info_it.next());
+            }
+        }
+        
+        Iterator map_it = this.parseColNameFile().iterator();
+//        while (map_it.hasNext()) {            
+////            String name = ((Map<String,Object>)map_it.next()).get("Name").toString();
+////            System.out.println(name+": "+this.value_pair.get(name).toString());
+//        }
         
     }
     
@@ -102,7 +123,7 @@ public class SqlInsertTableExec {
         hash = SqlExecutionFactory.record.getHashTable(tableName);
         
         if(hash==null){
-            hash = new HashMap<String,Integer>();
+            hash = new HashMap<String,Object>();
         }
         
         
@@ -117,7 +138,7 @@ public class SqlInsertTableExec {
     }
     
     
-    public boolean exec(){
+    public boolean exec() throws Exception{
         
         ArrayList<Object> insertContent;
         ArrayList<Map<String,Object>>  colInfo;
@@ -150,9 +171,11 @@ public class SqlInsertTableExec {
             }
              colValue =  sqlInfo.fetchInsertValue(); 
             if(colInfo.size()!=colValue.size()){
+                    Exception Number_of_Value_not_match = new Exception("The number of input values doesn't match the number of the columns.");
                     System.out.println("ERROR: Value number incorrect!!!");
                     System.out.println("ColInfo="+colInfo.size()+" and inputValue="+colValue.size());
-                    return false;
+                    throw Number_of_Value_not_match;
+//                    return false;
             }else
             {      
                 Object value;
@@ -186,11 +209,13 @@ public class SqlInsertTableExec {
                 
                 if(hash.containsKey(primaryKeySet.toString()))
                 {
+                    Exception Duplicated_Key_Excepiton = new Exception("Primary Key Duplicated.");
                      System.out.println("ERROR!! PRIMARY KEY DUPLICATED!!!!!!");
-                     return false;
+                     throw Duplicated_Key_Excepiton;
+//                     return false;
                 }else
                 {
-                     hash.put(primaryKeySet.toString(),0);
+                     hash.put(primaryKeySet.toString(),this.value_pair);
                      try {
                         FileWriter fw = new FileWriter(contentFile,true);
                         it = colInfo.iterator();
@@ -225,12 +250,29 @@ public class SqlInsertTableExec {
         
     }
     
-    
+//    public void display(){
+//        Set set = hash.entrySet();
+//        Iterator it = set.iterator();
+//        
+//        while (it.hasNext()) {            
+//            System.out.println(((Map.Entry)it.next()).getKey());
+//        }
+//    }
+//    
+
     public void display(){
         
         ArrayList<Map<String,Object>> colInfo = parseColNameFile();
         
         ArrayList<String> colSeq = sqlInfo.fetchInsertSequence();
+        if(colSeq.size() == 0){
+            Iterator colInfo_it = colInfo.iterator();
+            
+            while (colInfo_it.hasNext()) {                
+                Map<String,Object> info_map = (Map<String,Object>) colInfo_it.next();
+                colSeq.add(info_map.get("Name").toString());
+            }
+        }
         
         ArrayList<Object> colValue = sqlInfo.fetchInsertValue();
         
@@ -241,9 +283,25 @@ public class SqlInsertTableExec {
         int i,len=0,j,sumlen=0;
         
         it = colInfo.iterator();
-        
-        System.out.println("-------------------------");
+        while(it.hasNext()){
+            s  = (Map)it.next();
+            i = colSeq.indexOf(s.get("Name").toString());
+            if((Integer)s.get("Quantity") != 0){
+                len = ((Integer)s.get("Quantity")) +2 -s.get("Name").toString().length();
+            }else{
+                len = colValue.get(i).toString().length()-s.get("Name").toString().length();
+            }
+            if(len>0){
+                sumlen += len;
+            }else{
+                sumlen+=s.get("Name").toString().length();
+            }
+            sumlen += 1;            
+        }
+        printSplitLine(sumlen);
+        sumlen = 0;
         System.out.print("|");
+        it = colInfo.iterator();
         while(it.hasNext()){
             
             s  = (Map)it.next();
@@ -251,20 +309,25 @@ public class SqlInsertTableExec {
             
             System.out.print(s.get("Name"));
             
-            
-                len = colValue.get(i).toString().length()-s.get("Name").toString().length();
+                if((Integer)s.get("Quantity") != 0){
+                    len = ((Integer)s.get("Quantity")) +2 -s.get("Name").toString().length();
+                }else{
+                    len = colValue.get(i).toString().length()-s.get("Name").toString().length();
+                }
                 
                 
                 if(len>0){
                     
-                    sumlen+=colValue.get(i).toString().length();
+//                    sumlen+=colValue.get(i).toString().length();
+                    sumlen += len;
                     
                     for(j=0;j<len;j++){
                         System.out.print(" ");
                     }
-                }else
+                }else{
                     sumlen+=s.get("Name").toString().length();
-                
+                }
+                sumlen += 1;
             
             
             System.out.print("|");
@@ -277,40 +340,36 @@ public class SqlInsertTableExec {
         System.out.println("");
         
         printSplitLine(sumlen);
+        /*  End of print Head*/
         
-        System.out.print("|");
-        it = colInfo.iterator();
-        
-        while(it.hasNext()){
-            
-            s = (Map)it.next();
-            i = colSeq.indexOf(s.get("Name").toString());
-            System.out.print(colValue.get(i));
-            len = colValue.get(i).toString().length()-s.get("Name").toString().length();
-            
-            if(len<0){
-                len = -len;
-                
-                for(j=0;j<len;j++){
-                    System.out.print(" ");
-                }
-                
-            }
-            
+        Set set = hash.entrySet();
+        Iterator tuple_it = set.iterator();
+        while(tuple_it.hasNext()){
+            Map<String,Object> tuple = (Map<String,Object>) ((Map.Entry)tuple_it.next()).getValue();
+            Iterator colInfo_it = colInfo.iterator();
             System.out.print("|");
-            
-            
-            
-            
-            
-            
+            while (colInfo_it.hasNext()) {                
+                Map<String,Object> info_map = (Map<String,Object>) colInfo_it.next();
+                System.out.print(tuple.get(info_map.get("Name")));
+                if((Integer)info_map.get("Quantity") != 0){
+                    len = tuple.get(info_map.get("Name")).toString().length()-2 - ((Integer)info_map.get("Quantity"));
+                    len = Math.min(len, tuple.get(info_map.get("Name")).toString().length()-info_map.get("Name").toString().length());
+                }else{
+                    len = tuple.get(info_map.get("Name")).toString().length()-info_map.get("Name").toString().length();
+                }
+//                len = tuple.get(info_map.get("Name")).toString().length()-info_map.get("Name").toString().length();
+                if(len<0){
+                    len = -len;
+                    for(j=0;j<len;j++){
+                        System.out.print(" ");
+                    }
+
+                }
+                System.out.print("|");
+            }
+            System.out.println("");
         }
-        
-        System.out.println("\n-------------------------");
-        
+        printSplitLine(sumlen);
+        System.out.println();
     }
-    
-    
-    
-    
 }

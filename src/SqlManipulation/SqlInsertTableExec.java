@@ -120,6 +120,7 @@ public class SqlInsertTableExec {
     }
     
     private void prepareNoFile(){
+        
         hash = SqlExecutionFactory.record.getHashTable(tableName);
         
         if(hash==null){

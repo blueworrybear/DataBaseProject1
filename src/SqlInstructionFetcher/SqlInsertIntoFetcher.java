@@ -87,7 +87,7 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
             Matcher _matcher = _pattern.matcher(values);
             while (_matcher.find()) {                
                 String value = _matcher.group(0);
-                Matcher tmp_matcher = Pattern.compile("\\d+").matcher(value);
+                Matcher tmp_matcher = Pattern.compile("^\\d+$").matcher(value);
                 if (tmp_matcher.find()) {
                     insertValues.add(Integer.valueOf(value));
                 }else{
@@ -105,8 +105,13 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
 //        String patternStr = this.typeStringPattern1;
 //        String patternStr = "[A-Za-z0-9(),&&[^\'\"]]";
         Pattern pattern = Pattern.compile(patternStr);
+        //System.out.println(pattern.toString());
         Matcher matcher = pattern.matcher(this.statement.toUpperCase());
         boolean matcher_correct = matcher.find();
+        
+        if (matcher_correct) {
+//            System.out.println(matcher.group(0));
+        }
         
         return matcher_correct;
     }

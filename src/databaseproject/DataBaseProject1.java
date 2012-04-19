@@ -30,17 +30,21 @@ public class DataBaseProject1 {
         SqlDataReader reader = new SqlFileDataReader("src/Resource/data.in");
         reader.openReader();
         SqlExecutionFactory factory = new SqlExecutionFactory();
-        factory.setInstruction(reader.readNextInstruc());
+        String instruc = new String();
+        while(!(instruc = reader.readNextInstruc()).equals("")){
+        factory.setInstruction(instruc);
         try {
             factory.exeSql();
         } catch (Exception ex) {
-            System.out.println(ex);
+            System.out.println("");
+            System.out.println(ex.getMessage());
         }
-        factory.setInstruction(reader.readNextInstruc());
-        try {
-            factory.exeSql();
-        } catch (Exception ex) {
-            System.out.print("error");
         }
+//        factory.setInstruction(reader.readNextInstruc());
+//        try {
+//            factory.exeSql();
+//        } catch (Exception ex) {
+//            System.out.print(ex);
+//        }
     }
 }

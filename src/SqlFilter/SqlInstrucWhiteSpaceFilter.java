@@ -23,10 +23,11 @@ public class SqlInstrucWhiteSpaceFilter extends SqlInstrucFilter{
     
     public String filter(){
         this.instrucString = instruction.filter();
-        String patternString = "\\s\\s+";
+        String patternString = "\\s+";
         Pattern pattern = Pattern.compile(patternString);
         Matcher matcher = pattern.matcher(this.instrucString);
         this.instrucString = matcher.replaceAll(" ");
+        this.instrucString = this.instrucString.replaceAll("^\\s", "");
         return this.instrucString;
     }
 }

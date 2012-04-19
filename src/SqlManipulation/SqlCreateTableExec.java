@@ -78,7 +78,7 @@ public class SqlCreateTableExec{
             
                 FileWriter fWriter = new FileWriter(saveFile);
             
-                fWriter.write(tableName+";\n");
+                //fWriter.write(tableName+";\n");
                 it = columnInfo.iterator();
             
                 while(it.hasNext()){

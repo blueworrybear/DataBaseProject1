@@ -115,19 +115,9 @@ public class SqlExecutionFactory {
                      * BTW, it is suggested to use iterator to access ArrayList.
                      * The usage way is much like the example above.
                      */
-<<<<<<< HEAD
-                    ArrayList<Object> list = insertFetcher.fetchInsertValue();
-                    Iterator<Object> it = list.iterator();
-                    while(it.hasNext()){
-                        System.out.println(it.next().getClass());
-                    }
-=======
                     System.out.println(this.sqlIns);
                     SqlInsertTableExec sqlExec = new SqlInsertTableExec(insertFetcher);
                     sqlExec.exec();
-                    
-                    
->>>>>>> branch 'master' of https://github.com/blueworrybear/DataBaseProject1.git
                     
                 }else{
                     throw invalidException;

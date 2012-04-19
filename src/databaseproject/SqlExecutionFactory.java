@@ -110,6 +110,11 @@ public class SqlExecutionFactory {
                      * BTW, it is suggested to use iterator to access ArrayList.
                      * The usage way is much like the example above.
                      */
+                    ArrayList<Object> list = insertFetcher.fetchInsertValue();
+                    Iterator<Object> it = list.iterator();
+                    while(it.hasNext()){
+                        System.out.println(it.next().getClass());
+                    }
                     
                 }else{
                     throw invalidException;

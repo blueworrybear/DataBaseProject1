@@ -124,6 +124,9 @@ public class SqlExecutionFactory {
                     throw invalidException;
                 }
                 break;
+            case SELECT:
+                
+                break;
             default:
                 throw invalidException;
 //                if(this.sqlIns.equals("")){

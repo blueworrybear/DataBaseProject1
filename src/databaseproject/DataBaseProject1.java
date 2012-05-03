@@ -8,6 +8,11 @@ import SqlReader.SqlDataReader;
 import SqlReader.SqlFileDataReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import SqlInstructionFetcher.SqlSelectFetcher;
+import java.util.ArrayList;
+import java.util.Iterator;
+import model.SelectColumn;
+import model.SelectWhere;
 
 /**
  *
@@ -22,6 +27,7 @@ public class DataBaseProject1 {
      */
     public static void main(String[] args) {
         System.out.println("Start");
+        
         /*
          * NOTICE:
          * The end of the reading SQL file is that 

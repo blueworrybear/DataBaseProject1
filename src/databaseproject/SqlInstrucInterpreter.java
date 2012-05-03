@@ -25,6 +25,8 @@ public class SqlInstrucInterpreter {
                 sqlType = SqlStatementType.CREATE;
             }else if(type.equals("INSERT INTO")){
                 sqlType = SqlStatementType.INSERT;
+            }else if(type.equals("SELECT")){
+                sqlType = SqlStatementType.SELECT;
             }
         }
         return sqlType;

@@ -46,7 +46,11 @@ public class SqlInsertTableExec {
             Iterator _info_it = info_list.iterator();
             while (_it.hasNext()) {                
                 Map<String,Object> _map = (Map<String,Object>)_it.next();
-                this.value_pair.put(_map.get("Name").toString(),(_info_it.next()));
+                if(_info_it.hasNext()){
+                    this.value_pair.put(_map.get("Name").toString(),(_info_it.next()));
+                }else{
+                    this.value_pair.put(_map.get("Name").toString(),"null");
+                }
             }
         }else{
             Iterator _it = sqlInfo.fetchInsertSequence().iterator();
@@ -171,12 +175,34 @@ public class SqlInsertTableExec {
                  colSeq = sqlInfo.fetchInsertSequence();
             }
              colValue =  sqlInfo.fetchInsertValue(); 
-            if(colInfo.size()!=colValue.size()){
+            if(colInfo.size()!=colValue.size() && colSeq.size() == 0){
                     Exception Number_of_Value_not_match = new Exception("The number of input values doesn't match the number of the columns.");
                     System.out.println("ERROR: Value number incorrect!!!");
                     System.out.println("ColInfo="+colInfo.size()+" and inputValue="+colValue.size());
                     throw Number_of_Value_not_match;
 //                    return false;
+            }else if(colInfo.size()!=colValue.size() && colSeq.size() != 0){
+//                System.out.print("need handle");
+                ArrayList list = this.parseColNameFile();
+                Iterator _it = list.iterator();
+                while(_it.hasNext()){
+                    Map _map = (Map) _it.next();
+                    if((Boolean)_map.get("PRIMARY") == true){
+                        if(this.value_pair.get(_map.get("Name")) == null){
+                            System.out.println("ERROR");
+                        }else{
+                            if((_map.get("Type")).toString().equals("INT")&& this.value_pair.get(_map.get("Name")).getClass().toString().equals("class java.lang.Integer")){
+                                
+                            }else if(((_map.get("Type").toString()).equals("VARCHAR")||(_map.get("Type").toString()).equals("CHAR")) && !this.value_pair.get(_map.get("Name")).toString().equals("null")){
+                                
+                            }else{
+                                Exception ex = new Exception("Primary key is null.");
+                                throw ex;
+                            }
+                        }
+                    }
+                }
+                hash.put(primaryKeySet.toString(),this.value_pair);
             }else
             {      
                 Object value;

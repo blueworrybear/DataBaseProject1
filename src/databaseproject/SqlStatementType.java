@@ -11,5 +11,6 @@ package databaseproject;
 public enum SqlStatementType {
     CREATE,
     INSERT,
+    SELECT,
     NULL
 }

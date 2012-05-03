@@ -27,6 +27,20 @@ public class DataBaseProject1 {
      */
     public static void main(String[] args) {
         System.out.println("Start");
+        SqlSelectFetcher select = new SqlSelectFetcher("SELECT E.NAME FROM EMPLOYEE AS E,DEPARTMENT AS D WHERE D.NAME = D.NO, E.NAME > 10");
+        select.fetchTableMapping();
+        ArrayList<SelectWhere> list = select.fetchWhereExpressions();
+        Iterator it = list.iterator();
+        
+        while (it.hasNext()) {            
+            SelectWhere where = (SelectWhere) it.next();
+            System.out.println(where.get_operand1_tableName()+"."+where.get_operand1_column()+"("+where.get_operand1_is_integer()+")"+where.get_operator()+where.get_operand2_tableName()+"."+where.get_operand2_column()+"("+where.get_operand2_is_integer()+")");
+        }
+        if (select.judgeCorrect()) {
+            System.out.println("true");
+        }else{
+            System.out.println("false");
+        }
         
         /*
          * NOTICE:

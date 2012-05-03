@@ -182,8 +182,20 @@ public class SqlSelectFetcher extends SqlFetcher{
                     }
                 }
                 if (i == 0) {
+                    try{
+                        int t = Integer.parseInt(_instruction.replace(" ", ""));
+                        where.set_operand1_is_integer(true);
+                    }catch(Exception e){
+                        where.set_operand1_is_integer(false);
+                    }
                     where.set_operand1_column(_instruction.replace(" ", ""));
                 }else{
+                    try{
+                        int t = Integer.parseInt(_instruction.replace(" ", ""));
+                        where.set_operand2_is_integer(true);
+                    }catch(Exception e){
+                        where.set_operand2_is_integer(false);
+                    }
                     where.set_operand2_column(_instruction.replace(" ", ""));
                 }
                 i++;
@@ -225,7 +237,9 @@ public class SqlSelectFetcher extends SqlFetcher{
             matcher = pattern.matcher(intruciton.replace("SELECT", ""));
             while (matcher.find()) {       
                 SelectColumn select = new SelectColumn();
-            //            System.out.println(matcher.group(0));
+                
+//                System.out.println(matcher.group(0));
+                
                 String table;
                 String _instruction = matcher.group(0).replace(" ", "").replace(",", "");
 
@@ -240,6 +254,7 @@ public class SqlSelectFetcher extends SqlFetcher{
                 _patternStr = "\\w+\\.";
                 _pattern = Pattern.compile(_patternStr);
                 _matcher = _pattern.matcher(_instruction);
+//                System.out.println(_instruction);
                 if (!_matcher.find() && this.tableNumber > 1) {
                     return false;
                 }

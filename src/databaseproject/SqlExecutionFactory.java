@@ -7,6 +7,7 @@ import SqlFilter.SqlInstruction;
 import SqlInstructionFetcher.SqlCreateFetcher;
 import SqlInstructionFetcher.SqlCreateTableFetcher;
 import SqlInstructionFetcher.SqlInsertIntoFetcher;
+import SqlInstructionFetcher.SqlSelectFetcher;
 import SqlManipulation.SqlCreateTableExec;
 import SqlManipulation.SqlInsertTableExec;
 import java.io.File;
@@ -115,7 +116,7 @@ public class SqlExecutionFactory {
                      * BTW, it is suggested to use iterator to access ArrayList.
                      * The usage way is much like the example above.
                      */
-                    System.out.println(this.sqlIns);
+                    //System.out.println(this.sqlIns);
                     SqlInsertTableExec sqlExec = new SqlInsertTableExec(insertFetcher);
                     sqlExec.exec();
                     sqlExec.display();
@@ -125,6 +126,17 @@ public class SqlExecutionFactory {
                 }
                 break;
             case SELECT:
+                
+                SqlSelectFetcher selectFetcher = new SqlSelectFetcher(this.sqlIns);
+                
+                if(selectFetcher.judgeCorrect()){
+                    
+                    
+                    
+                    
+                }else{
+                    throw invalidException;
+                }
                 
                 break;
             default:

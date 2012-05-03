@@ -116,14 +116,11 @@ public class SqlInsertTableExec {
             } 
         }
         
-        
-        
-        
         return colInfo;
         
     }
     
-    private void prepareNoFile(){
+    /*private void prepareNoFile(){
         
         hash = SqlExecutionFactory.record.getHashTable(tableName);
         
@@ -131,9 +128,7 @@ public class SqlInsertTableExec {
             hash = new HashMap<String,Object>();
         }
         
-        
-        
-    }
+    }*/
     
     private void prepare(){
         
@@ -152,7 +147,7 @@ public class SqlInsertTableExec {
         StringBuffer primaryKeySet = new StringBuffer();
         Iterator it;
         
-        prepareNoFile();
+        //prepareNoFile();
         
         if(!colFile.exists()){
             System.out.println("ERROR: Table Not exists!!!!");
@@ -263,7 +258,7 @@ public class SqlInsertTableExec {
             
         } 
         
-        SqlExecutionFactory.record.addSqlContentHashMap(tableName,hash);
+        SqlExecutionFactory.record.addSqlContentHashMap(tableName, hash);
         return true;
     }
     

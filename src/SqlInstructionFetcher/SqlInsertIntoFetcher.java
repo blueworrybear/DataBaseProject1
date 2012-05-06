@@ -74,15 +74,15 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
      */
     public ArrayList<Object> fetchInsertValue(){
         ArrayList<Object> insertValues = new ArrayList<Object>();
-        String patternStr = "VALUES\\s?\\((\\s?[\"\']?\\w+[\"\']?\\s?,?\\s?)+\\)";
+        String patternStr = "VALUES\\s?\\((\\s?[\"\']?(\\w|\\s)+[\"\']?\\s?,?\\s?)+\\)";
         Pattern pattern = Pattern.compile(patternStr);
         Matcher matcher = pattern.matcher(this.statement.toUpperCase());
         if (matcher.find()) {
             String values = matcher.group(0);
             values = values.replaceAll("^VALUES", "");
-            values = values.replaceAll("\\s", "");
+//            values = values.replaceAll("\\s", "");
 //            System.out.println(values);
-            String _patternStr = "[\'\"]?\\w+[\'\"]?";
+            String _patternStr = "([\'\"](\\w|\\s)+[\'\"]|\\d+)";
             Pattern _pattern = Pattern.compile(_patternStr);
             Matcher _matcher = _pattern.matcher(values);
             while (_matcher.find()) {                
@@ -93,6 +93,7 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
                 }else{
                     insertValues.add(value);
                 }
+//                System.out.println("value:"+value);
             }
         }
         return insertValues;
@@ -100,8 +101,8 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
     
     @Override
     public boolean judgeCorrect(){
-//        String patternStr = "INSERT\\sINTO\\s\\w+\\s(\\((\\s?\\w+\\s?,?\\s?)+\\))?\\s?VALUES\\s?(\\(((\\s?[\"\']{1}\\s?.+\\s?[\"\']{1}\\s?,?\\s?)|(\\s?\\d+\\s?,\\s?))*\\)){1}\\s?;\\s?";
-        String patternStr = "INSERT\\sINTO\\s\\w+\\s(\\((\\s?\\w+\\s?,?\\s?)+\\))?\\s?VALUES\\s?(\\("+typeStringPattern1+"*"+typeStringPattern2+"?\\)){1}\\s?;\\s?";
+        String patternStr = "INSERT\\sINTO\\s\\w+\\s(\\((\\s?\\w+\\s?,?\\s?)+\\))?\\s?VALUES\\s?(\\(((\\s?[\"\']{1}\\s?.+\\s?[\"\']{1}\\s?,?\\s?)|(\\s?\\d+\\s?,\\s?))*\\)){1}\\s?;\\s?";
+//        String patternStr = "INSERT\\sINTO\\s\\w+\\s(\\((\\s?\\w+\\s?,?\\s?)+\\))?\\s?VALUES\\s?(\\("+typeStringPattern1+"*"+typeStringPattern2+"?\\)){1}\\s?;\\s?";
 //        String patternStr = this.typeStringPattern1;
 //        String patternStr = "[A-Za-z0-9(),&&[^\'\"]]";
         Pattern pattern = Pattern.compile(patternStr);

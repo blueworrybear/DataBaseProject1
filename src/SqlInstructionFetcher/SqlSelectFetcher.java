@@ -124,6 +124,16 @@ public class SqlSelectFetcher extends SqlFetcher{
         return list;
     }
     
+    public String fetchBooleanFunction(){
+        String patternStr = "(AND|OR)";
+        Pattern pattern = Pattern.compile(patternStr);
+        Matcher matcher = pattern.matcher(this.statement.toUpperCase());
+        if (matcher.find()) {
+            return matcher.group(0);
+        }
+        return null;
+    }
+    
     public ArrayList<SelectWhere> fetchWhereExpressions(){
         
         String instruciton = new String();
@@ -207,6 +217,7 @@ public class SqlSelectFetcher extends SqlFetcher{
                 where.set_operator(_matcher.group(0));
             }
 //            System.out.println(where.get_operand1_tableName()+"."+where.get_operand1_column()+where.get_operator()+where.get_operand2_tableName()+"."+where.get_operand2_column());
+         
             list.add(where);
         }
         return list;

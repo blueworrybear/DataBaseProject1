@@ -258,7 +258,7 @@ public class SqlInsertTableExec {
             
         } 
         
-        SqlExecutionFactory.record.addSqlContentHashMap(tableName, hash);
+        SqlExecutionFactory.dataRecord.addSqlContentHashMap(tableName, hash);
         return true;
     }
     

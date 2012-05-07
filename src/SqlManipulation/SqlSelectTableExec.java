@@ -25,7 +25,7 @@ public class SqlSelectTableExec {
         outputTable = new HashMap<String, ArrayList<Object>>();
     }
     
-    public String checkSync(String tableName, String colName)
+    public String operandType(String tableName, String colName)
     {
         ArrayList<Map<String, Object>> colInfo;
         String type = "";
@@ -45,37 +45,48 @@ public class SqlSelectTableExec {
         
     }
     
-    public boolean checkSyntex(int num)
+    public boolean checkComparation(int num)
     {
         ArrayList<SelectWhere> whereClause = selectFetcher.fetchWhereExpressions();
         
-        if( whereClause.get(num).get_operand1_is_integer() )
+        if(         whereClause.get(num).get_operand1_is_integer() 
+                 && this.operandType(whereClause.get(num).get_operand2_tableName(), whereClause.get(num).get_operand2_column()).equals("INT") )
         {
-                if( this.checkSync(whereClause.get(num).get_operand2_tableName(), whereClause.get(num).get_operand2_column()).equals("INT") )
-                {
-                    return true;
-                }else
-                {
-                    System.out.println("Syntex error : incompatible type of Integer comparing with String");
-                }
-        }else if( whereClause.get(num).get_operand2_is_integer() )
+                return true;
+        }else if(   whereClause.get(num).get_operand2_is_integer() 
+                 && this.operandType(whereClause.get(num).get_operand1_tableName(), whereClause.get(num).get_operand1_column()).equals("INT") )
         {
-                if(this.checkSync(whereClause.get(num).get_operand1_tableName(), whereClause.get(num).get_operand1_column()).equals("INT"))
-                {
-                    return true;
-                }else
-                {
-                    System.out.println("Syntex error : incompatible type of Integer comparing with String");
-                }
-        }else
+                return true;
+        }else if(   this.operandType(whereClause.get(num).get_operand1_tableName(), whereClause.get(num).get_operand1_column()).equals("INT")
+                 && this.operandType(whereClause.get(num).get_operand2_tableName(), whereClause.get(num).get_operand2_column()).equals("INT") )
+        {
+                return true;
+        }else if(   !this.operandType(whereClause.get(num).get_operand1_tableName(), whereClause.get(num).get_operand1_column()).equals("INT")
+                 && !this.operandType(whereClause.get(num).get_operand2_tableName(), whereClause.get(num).get_operand2_column()).equals("INT") )
         {
                 if( whereClause.get(num).get_operator().equals("=") )
                 {
                     return true;
                 }else
                 {
-                    System.out.println("Syntex error : cannot compare between Strings");
+                    System.out.println("Syntex error : cannot compare two String");
                 }
+        }else
+        {
+            System.out.println("Syntex error : incompatible type of Integer comparing with String");
+        }
+        return false;
+    }
+    
+    public boolean checkSyntex()
+    {
+        ArrayList<SelectWhere> whereClause = selectFetcher.fetchWhereExpressions();
+        if( whereClause.size() == 1 && checkComparation(0))
+        {
+            return true;
+        }else if( whereClause.size() == 2 && checkComparation(0) && checkComparation(1) )
+        {
+            return true;
         }
         return false;
     }
@@ -92,335 +103,168 @@ public class SqlSelectTableExec {
         return tableList;
     }
     
-    
-    public boolean exec()
+    public boolean booleanExp(SelectWhere clause, Map<String, Object> tuple)
     {
-        ArrayList<SelectColumn> column = selectFetcher.fetchColumns();
-        ArrayList<SelectWhere> whereClause = selectFetcher.fetchWhereExpressions();
-        ArrayList<Object> outcome1 = new ArrayList<Object>();
-        ArrayList<Object> outcome2 = new ArrayList<Object>();
-        ArrayList<Object> outcome3 = new ArrayList<Object>();
-        ArrayList<Object> outcome4 = new ArrayList<Object>();
-        HashMap<String, ArrayList<Object>> tempTable = new HashMap<String, ArrayList<Object>>();
+        String operator = clause.get_operator();
         
-        if( whereClause.size() == 1 )
+        if( clause.get_operand1_is_integer() )
         {
-            if( checkSyntex(0) )
+            int op1 = Integer.parseInt(clause.get_operand1_column());
+            int op2 = (Integer)( (Map<String, Object>)( tuple.get(clause.get_operand2_tableName()) ) ).get(clause.get_operand2_column());
+            
+            if( (operator.equals("=") && op1==op2) || (operator.equals(">") && op1>op2) || (operator.equals("<") && op1<op2) )
             {
-                        
-                if( whereClause.get(0).get_operand1_is_integer() )
-                {
-                    ArrayList<Object> tableList = this.table(whereClause.get(0).get_operand2_tableName());
-                    
-                    int op1 = Integer.parseInt(whereClause.get(0).get_operand1_column());
-                    for(int i=0;i<tableList.size();i++)
-                    {
-                        int op2 = (Integer)((Map<String, Object>)tableList.get(i)).get(whereClause.get(0).get_operand2_column());
-                        if( ( whereClause.get(0).get_operator().equals("=") && op1 == op2 ) ||
-                            ( whereClause.get(0).get_operator().equals("<") && op1 < op2  ) ||
-                            ( whereClause.get(0).get_operator().equals(">") && op1 > op2  ) )
-                        {
-                            outcome1.add((Map<String, Object>)tableList.get(i));
-                        }
-                    }
-                    
-                    outputTable.put(whereClause.get(0).get_operand2_tableName(), outcome1);
-                    
-                }else if( whereClause.get(0).get_operand2_is_integer() )
-                {
-                    ArrayList<Object> tableList = this.table(whereClause.get(0).get_operand1_tableName());
-                    
-                    int op2 = Integer.parseInt(whereClause.get(0).get_operand2_column());
-                    for(int i=0;i<tableList.size();i++)
-                    {
-                        int op1 = (Integer)((Map<String, Object>)tableList.get(i)).get(whereClause.get(0).get_operand1_column());
-                        if( ( whereClause.get(0).get_operator().equals("=") && op1 == op2 ) ||
-                            ( whereClause.get(0).get_operator().equals("<") && op1 < op2  ) ||
-                            ( whereClause.get(0).get_operator().equals(">") && op1 > op2  ) )
-                        {
-                            outcome1.add((Map<String, Object>)tableList.get(i));
-                        }
-                    }
-                    outputTable.put(whereClause.get(0).get_operand1_tableName(), outcome1);
-                    
-                }else if( whereClause.get(0).get_operand1_tableName().equals("") )
-                {
-                    ArrayList<Object> tableList = this.table(whereClause.get(0).get_operand2_tableName());
-                    
-                    String op1 = whereClause.get(0).get_operand1_column();
-                    for(int i=0;i<tableList.size();i++)
-                    {
-                         String op2 = ((Map<String, Object>)tableList.get(i)).get(whereClause.get(0).get_operand2_column()).toString();
-                         if( op1.equals(op2) )
-                         {
-                             outcome1.add((Map<String, Object>)tableList.get(i));
-                         }
-                    }  
-                    outputTable.put(whereClause.get(0).get_operand2_tableName(), outcome1);
-                    
-                }else if( whereClause.get(0).get_operand2_tableName().equals("") )
-                {
-                    ArrayList<Object> tableList = this.table(whereClause.get(0).get_operand1_tableName());
-                    
-                    String op2 = whereClause.get(0).get_operand2_column();
-                    for(int i=0;i<tableList.size();i++)
-                    {
-                         String op1 = ((Map<String, Object>)tableList.get(i)).get(whereClause.get(0).get_operand1_column()).toString();
-                         if( op1.equals(op2) )
-                         {
-                             outcome1.add((Map<String, Object>)tableList.get(i));
-                         }
-                    }  
-                    outputTable.put(whereClause.get(0).get_operand1_tableName(), outcome1);
-                    
-                }else
-                {
-                    ArrayList<Object> tableList1 = this.table(whereClause.get(0).get_operand1_tableName());
-                    ArrayList<Object> tableList2 = this.table(whereClause.get(0).get_operand2_tableName());
-                    
-                    for(int i=0;i<tableList1.size();i++)
-                    {
-                        String op1 = ((Map<String, Object>)tableList1.get(i)).get(whereClause.get(0).get_operand1_column()).toString();
-                        for(int j=0;j<tableList2.size();j++)
-                        {
-                            String op2 = ((Map<String, Object>)tableList2.get(j)).get(whereClause.get(0).get_operand2_column()).toString();
-                            if( op1.equals(op2) )
-                            {
-                                outcome1.add((Map<String, Object>)tableList1.get(i));
-                                outcome2.add((Map<String, Object>)tableList2.get(j));
-                            }
-                        }
-                    }
-                    
-                    outputTable.put(whereClause.get(0).get_operand1_tableName(), outcome1);
-                    outputTable.put(whereClause.get(0).get_operand2_tableName(), outcome2);
-                }
+                return true;
             }
-        }else if( whereClause.size() == 2 )
+            
+        }else if( clause.get_operand2_is_integer() )
         {
-            if( checkSyntex(0) && checkSyntex(1))
+            int op1 = (Integer)( (Map<String, Object>)( tuple.get(clause.get_operand1_tableName()) ) ).get(clause.get_operand1_column());
+            int op2 = Integer.parseInt(clause.get_operand2_column());
+            
+            if( (operator.equals("=") && op1==op2) || (operator.equals(">") && op1>op2) || (operator.equals("<") && op1<op2) )
             {
-                if( whereClause.get(0).get_operand1_is_integer() )
+                return true;
+            }
+        }else if( clause.get_operand1_tableName().equals("") )
+        {
+            String op1 = clause.get_operand1_column();
+            String op2 = ( (Map<String, Object>)( tuple.get(clause.get_operand2_tableName()) ) ).get(clause.get_operand2_column()).toString();
+            if( op1.equals(op2) )
+            {
+                return true;
+            }
+        }else if( clause.get_operand2_tableName().equals("") )
+        {
+            String op1 = ( (Map<String, Object>)( tuple.get(clause.get_operand1_tableName()) ) ).get(clause.get_operand1_column()).toString();
+            String op2 = clause.get_operand2_column();
+            if( op1.equals(op2) )
+            {
+                return true;
+            }
+        }else
+        {
+            if( operandType(clause.get_operand1_tableName(), clause.get_operand1_column()).equals("INT") )
+            {
+                int op1 = (Integer)( (Map<String, Object>)( tuple.get(clause.get_operand1_tableName()) ) ).get(clause.get_operand1_column());
+                int op2 = (Integer)( (Map<String, Object>)( tuple.get(clause.get_operand2_tableName()) ) ).get(clause.get_operand2_column());
+                
+                if( (operator.equals("=") && op1==op2) || (operator.equals(">") && op1>op2) || (operator.equals("<") && op1<op2) )
                 {
-                    ArrayList<Object> tableList = this.table(whereClause.get(0).get_operand2_tableName());
-                    
-                    int op1 = Integer.parseInt(whereClause.get(0).get_operand1_column());
-                    for(int i=0;i<tableList.size();i++)
-                    {
-                        int op2 = (Integer)((Map<String, Object>)tableList.get(i)).get(whereClause.get(0).get_operand2_column());
-                        if( ( whereClause.get(0).get_operator().equals("=") && op1 == op2 ) ||
-                            ( whereClause.get(0).get_operator().equals("<") && op1 < op2  ) ||
-                            ( whereClause.get(0).get_operator().equals(">") && op1 > op2  ) )
-                        {
-                            outcome1.add((Map<String, Object>)tableList.get(i));
-                        }
-                        
-                    }
-                    
-                    tempTable.put(whereClause.get(0).get_operand2_tableName(), outcome1);
-                    
-                }else if( whereClause.get(0).get_operand2_is_integer() )
-                {
-                    ArrayList<Object> tableList = this.table(whereClause.get(0).get_operand1_tableName());
-                    
-                    int op2 = Integer.parseInt(whereClause.get(0).get_operand2_column());
-                    for(int i=0;i<tableList.size();i++)
-                    {
-                        int op1 = (Integer)((Map<String, Object>)tableList.get(i)).get(whereClause.get(0).get_operand1_column());
-                        if( ( whereClause.get(0).get_operator().equals("=") && op1 == op2 ) ||
-                            ( whereClause.get(0).get_operator().equals("<") && op1 < op2  ) ||
-                            ( whereClause.get(0).get_operator().equals(">") && op1 > op2  ) )
-                        {
-                            outcome1.add((Map<String, Object>)tableList.get(i));
-                        }
-                    }
-                    
-                    tempTable.put(whereClause.get(0).get_operand1_tableName(), outcome1);
-                    
-                }else if( whereClause.get(0).get_operand1_tableName().equals("") )
-                {
-                    ArrayList<Object> tableList = this.table(whereClause.get(0).get_operand2_tableName());
-                    
-                    String op1 = whereClause.get(0).get_operand1_column();
-                    for(int i=0;i<tableList.size();i++)
-                    {
-                         String op2 = ((Map<String, Object>)tableList.get(i)).get(whereClause.get(0).get_operand2_column()).toString();
-                         if( op1.equals(op2) )
-                         {
-                             outcome1.add((Map<String, Object>)tableList.get(i));
-                         }
-                    }
-                    
-                    tempTable.put(whereClause.get(0).get_operand2_tableName(), outcome1);
-                    
-                }else if( whereClause.get(0).get_operand2_tableName().equals("") )
-                {
-                    ArrayList<Object> tableList = this.table(whereClause.get(0).get_operand1_tableName());
-                    
-                    String op2 = whereClause.get(0).get_operand2_column();
-                    for(int i=0;i<tableList.size();i++)
-                    {
-                         String op1 = ((Map<String, Object>)tableList.get(i)).get(whereClause.get(0).get_operand1_column()).toString();
-                         if( op1.equals(op2) )
-                         {
-                             outcome1.add((Map<String, Object>)tableList.get(i));
-                         }
-                    }  
-                    
-                    tempTable.put(whereClause.get(0).get_operand1_tableName(), outcome1);
-                    
-                }else
-                {
-                    ArrayList<Object> tableList1 = this.table(whereClause.get(0).get_operand1_tableName());
-                    ArrayList<Object> tableList2 = this.table(whereClause.get(0).get_operand2_tableName());
-                    
-                    for(int i=0;i<tableList1.size();i++)
-                    {
-                        String op1 = ((Map<String, Object>)tableList1.get(i)).get(whereClause.get(0).get_operand1_column()).toString();
-                        for(int j=0;j<tableList2.size();j++)
-                        {
-                            String op2 = ((Map<String, Object>)tableList2.get(j)).get(whereClause.get(0).get_operand2_column()).toString();
-                            if( op1.equals(op2) )
-                            {
-                                outcome1.add((Map<String, Object>)tableList1.get(i));
-                                outcome2.add((Map<String, Object>)tableList2.get(j));
-                            }
-                        }
-                    }
-                    
-                    tempTable.put(whereClause.get(0).get_operand1_tableName(), outcome1);
-                    tempTable.put(whereClause.get(0).get_operand2_tableName(), outcome2);
-                    
+                    return true;
                 }
-                if(true) // AND
+            }else
+            {
+                String op1 = ( (Map<String, Object>)( tuple.get(clause.get_operand1_tableName()) ) ).get(clause.get_operand1_column()).toString();
+                String op2 = ( (Map<String, Object>)( tuple.get(clause.get_operand2_tableName()) ) ).get(clause.get_operand2_column()).toString();
+                
+                if( op1.equals(op2) )
                 {
-                    if( whereClause.get(1).get_operand1_is_integer() )
-                    {
-                        ArrayList<Object> tempList = tempTable.get(whereClause.get(1).get_operand2_tableName());
-                        
-                        int op1 = Integer.parseInt(whereClause.get(1).get_operand1_column());
-                        for(int i=0;i<tempList.size();i++)
-                        {
-                            int op2 = (Integer)((Map<String, Object>)tempList.get(i)).get(whereClause.get(1).get_operand2_column());
-                            if( ( whereClause.get(1).get_operator().equals("=") && op1 == op2 ) ||
-                                ( whereClause.get(1).get_operator().equals("<") && op1 < op2  ) ||
-                                ( whereClause.get(1).get_operator().equals(">") && op1 > op2  ) )
-                            {
-                                outcome3.add(tempList.get(i));
-                            }
-                        }
-                    
-                        outputTable.put(whereClause.get(1).get_operand2_tableName(), outcome3);
-                    
-                    
-                    }else if( whereClause.get(1).get_operand2_is_integer() )
-                    {
-                        ArrayList<Object> tempList = tempTable.get(whereClause.get(1).get_operand1_tableName());
-                        
-                        int op2 = Integer.parseInt(whereClause.get(1).get_operand2_column());
-                        for(int i=0;i<tempList.size();i++)
-                        {
-                            int op1 = (Integer)((Map<String, Object>)tempList.get(i)).get(whereClause.get(1).get_operand1_column());
-                            if( ( whereClause.get(1).get_operator().equals("=") && op1 == op2 ) ||
-                                ( whereClause.get(1).get_operator().equals("<") && op1 < op2  ) ||
-                                ( whereClause.get(1).get_operator().equals(">") && op1 > op2  ) )
-                            {
-                                outcome3.add(tempList.get(i));
-                            }
-                        }
-                    
-                        outputTable.put(whereClause.get(1).get_operand1_tableName(), outcome3);
-                    
-                    }else if( whereClause.get(1).get_operand1_tableName().equals("") )
-                    {
-                        ArrayList<Object> tempList = tempTable.get(whereClause.get(1).get_operand2_tableName());
-                        
-                        String op1 = whereClause.get(1).get_operand1_column();
-                        for(int i=0;i<tempList.size();i++)
-                        {
-                            String op2 = ((Map<String, Object>)tempList.get(i)).get(whereClause.get(1).get_operand2_column()).toString();
-                            if( op1.equals(op2) )
-                            {
-                                outcome3.add(tempList.get(i));
-                            }
-                        }  
-                    
-                        outputTable.put(whereClause.get(1).get_operand2_tableName(), outcome3);
-                    
-                    }else if( whereClause.get(1).get_operand2_tableName().equals("") )
-                    {
-                        ArrayList<Object> tempList = tempTable.get(whereClause.get(1).get_operand1_tableName());
-                    
-                        String op2 = whereClause.get(1).get_operand2_column();
-                        for(int i=0;i<tempList.size();i++)
-                        {
-                            String op1 = ((Map<String, Object>)tempList.get(i)).get(whereClause.get(1).get_operand1_column()).toString();
-                            if( op1.equals(op2) )
-                            {
-                                outcome3.add(tempList.get(i));
-                            }
-                        }  
-                    
-                        outputTable.put(whereClause.get(1).get_operand1_tableName(), outcome3);
-                    
-                    }else
-                    {
-                        ArrayList<Object> tempList1;
-                        if( tempTable.get(whereClause.get(1).get_operand1_tableName()) == null )
-                        {
-                            tempList1 = this.table(whereClause.get(1).get_operand1_tableName());
-                        }else
-                        {
-                            tempList1 = tempTable.get(whereClause.get(1).get_operand1_tableName());
-                        }
-                        
-                        ArrayList<Object> tempList2;
-                        if( tempTable.get(whereClause.get(1).get_operand2_tableName()) == null )
-                        {
-                            tempList2 = this.table(whereClause.get(1).get_operand2_tableName());
-                        }else
-                        {
-                            tempList2 = tempTable.get(whereClause.get(1).get_operand2_tableName());
-                        }
-                    
-                        for(int i=0;i<tempList1.size();i++)
-                        {
-                            String op1 = ((Map<String, Object>)tempList1.get(i)).get(whereClause.get(1).get_operand1_column()).toString();
-                            for(int j=0;j<tempList2.size();j++)
-                            {
-                                String op2 = ((Map<String, Object>)tempList1.get(i)).get(whereClause.get(1).get_operand2_column()).toString();
-                                if( op1.equals(op2) )
-                                {
-                                    outcome3.add(tempList1.get(i));
-                                    outcome4.add(tempList2.get(j));
-                                }
-                            }
-                        }
-                    
-                        outputTable.put(whereClause.get(1).get_operand1_tableName(), outcome3);
-                        outputTable.put(whereClause.get(1).get_operand2_tableName(), outcome4);
-                    
-                    
-                    }
-                    
-                    
-                }else   // OR
-                {
-                    
+                    return true;
                 }
-                
-                
-                
-                
             }
         }
         
+        return false;
+    }
+    
+    public boolean exec()
+    {   
+        if( !checkSyntex() )
+        {
+            return false;
+        }
+        
+        ArrayList<String> fromTable = selectFetcher.fetchFromExpressions();
+        ArrayList<SelectWhere> clause = selectFetcher.fetchWhereExpressions();
+        ArrayList<Object> tableList1;
+        ArrayList<Object> tableList2;
+        ArrayList<Object> outcome1 = new ArrayList<Object>();
+        ArrayList<Object> outcome2 = new ArrayList<Object>();
+        
+        if( fromTable.size() == 1 )   // Table number = 1
+        {
+            tableList1 = this.table(fromTable.get(0));
+            Map tuple = new HashMap<String, Object>();
+            
+            for(int i=0;i<tableList1.size();i++)
+            {
+                tuple.put(fromTable.get(0), tableList1.get(i));
+                
+                if( booleanExp(clause.get(0), tuple) && booleanExp(clause.get(1), tuple) )   //  AND
+                {
+                    outcome1.add(tableList1.get(i));
+                }else if( booleanExp(clause.get(0), tuple) || booleanExp(clause.get(1), tuple))   // OR
+                {
+                    outcome1.add(tableList1.get(i));
+                }else if( booleanExp(clause.get(0), tuple) )
+                {
+                    outcome1.add(tableList1.get(i));
+                }
+                tuple.remove(fromTable.get(0));
+            }
+            outputTable.put(fromTable.get(0), outcome1);
+            
+        }else if( fromTable.size() == 2 )   // Table number = 2
+        {
+            tableList1 = this.table(fromTable.get(0));
+            tableList2 = this.table(fromTable.get(1));
+            Map tuple = new HashMap<String, Object>();
+            
+            for(int i=0;i<tableList1.size();i++)
+            {
+                tuple.put(fromTable.get(0), tableList1.get(i));
+                
+                for(int j=0;j<tableList2.size();j++)
+                {
+                    tuple.put(fromTable.get(1), tableList2.get(i));
+                
+                    if( booleanExp(clause.get(0), tuple) && booleanExp(clause.get(1), tuple) )  // AND
+                    {
+                        outcome1.add(tableList1.get(i));
+                        outcome2.add(tableList2.get(j));
+                    }else if( booleanExp(clause.get(0), tuple) || booleanExp(clause.get(1), tuple) )   // OR
+                    {
+                        outcome1.add(tableList1.get(i));
+                        outcome2.add(tableList2.get(j));
+                    }else if( booleanExp(clause.get(0), tuple) )
+                    {
+                        outcome1.add(tableList1.get(i));
+                        outcome2.add(tableList2.get(j));
+                    }
+                    
+                    tuple.remove(fromTable.get(1));
+                }
+                tuple.remove(fromTable.get(0));
+            }
+            
+            outputTable.put(fromTable.get(0), outcome1);
+            outputTable.put(fromTable.get(1), outcome2);
+            
+        }
         
         return true;
     }
     
     public void display()
     {
+        ArrayList<SelectColumn> column = selectFetcher.fetchColumns();
+        
+        int rowNum = outputTable.get(column.get(0).getTable()).size();
+        for(int row=0;row<rowNum;row++)
+        {
+            for(int col=0;col<column.size();col++)
+            {
+                String tableName = column.get(col).getTable();
+                String colName = column.get(col).getColumn();
+        
+                String value = ((Map<String, Object>)outputTable.get(tableName).get(row)).get(colName).toString();
+                
+                System.out.printf(" %s ",value);
+            }
+            System.out.printf("\n");
+        }
+        
         
     }
 }

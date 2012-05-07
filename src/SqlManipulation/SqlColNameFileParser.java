@@ -27,7 +27,7 @@ public class SqlColNameFileParser {
         
     }
     
-    public ArrayList<Map<String,Object>> parseColNameFile(String tableName){
+    public static ArrayList<Map<String,Object>> parseColNameFile(String tableName){
         
         ArrayList<Map<String,Object>>  colInfo = new ArrayList<Map<String,Object>>();
         String contentBuf;

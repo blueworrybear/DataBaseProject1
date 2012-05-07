@@ -124,6 +124,14 @@ public class SqlSelectFetcher extends SqlFetcher{
         return list;
     }
     
+    public ArrayList<String> fetchFromExpressions(){
+        //  need to be implement
+        
+        return null;
+        
+    }
+    
+    
     public ArrayList<SelectWhere> fetchWhereExpressions(){
         
         String instruciton = new String();

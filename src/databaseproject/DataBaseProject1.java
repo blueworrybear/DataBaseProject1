@@ -30,7 +30,7 @@ public class DataBaseProject1 {
     public static void main(String[] args) {
         
         System.out.println("Start");
-        String sql = "SELECT E.NAME FROM EMPLOYEE AS E,DEPARTMENT AS D WHERE D.NAME = \"HI\", E.NAME > 10,E.NO = \"WLL\",E.NO = D.NO,E.NO = 0";
+        String sql = "SELECT E.NAME COUNT(*) FROM EMPLOYEE AS E,DEPARTMENT AS D WHERE D.NAME = \"HI'''@@#$'''\"\"\"\", E.NAME > 10,E.NO = \"W'''LL'''\",E.NO = D.NO,E.NO = 0";
 //        String sql = "SELECT NAME FROM EMPLOYEE WHERE NAME = \"YES\" AND NO = \"REIRKLEJLK\"";
         SqlSelectFetcher select = new SqlSelectFetcher(sql);
         System.out.println(sql);
@@ -41,6 +41,12 @@ public class DataBaseProject1 {
         while (it.hasNext()) {            
             SelectWhere where = (SelectWhere) it.next();
             System.out.println(where.get_operand1_tableName()+"."+where.get_operand1_column()+"("+where.get_operand1_is_integer()+")"+where.get_operator()+where.get_operand2_tableName()+"."+where.get_operand2_column()+"("+where.get_operand2_is_integer()+")");
+        }
+        ArrayList<SelectColumn> cList = select.fetchColumns();
+        Iterator cIt = cList.iterator();
+        while (cIt.hasNext()) {            
+            SelectColumn c = (SelectColumn) cIt.next();
+            System.out.println("column:"+c.getTable()+c.getColumn());
         }
         if (select.judgeCorrect()) {
             System.out.println("true");

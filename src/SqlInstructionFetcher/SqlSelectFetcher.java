@@ -150,7 +150,7 @@ public class SqlSelectFetcher extends SqlFetcher{
             return null;
         }
         
-        patternStr = "\\s?(\\w+\\s?\\.\\s?)?(\'|\")?\\s?\\w+\\s?(\'|\")?\\s?(=|>|<|<=|>=)\\s?(\\w+\\s?\\.\\s?)?(\'|\")?\\s?\\w+\\s?(\'|\")?\\s?,?";
+        patternStr = "\\s?((\\w+\\.\\w+)|((\'|\")(.+?(\'\'\')*(\"\"\")*)+?(\'|\"))|\\d+)\\s?(=|>|<|<=|>=)\\s?((\\w+\\.\\w+)|((\'|\")(.+?(\'\'\')*(\"\"\")*)+?(\'|\"))|\\d+)\\s?,?";
         pattern = Pattern.compile(patternStr);
         matcher = pattern.matcher(instruciton);
         

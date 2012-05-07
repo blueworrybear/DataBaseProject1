@@ -251,9 +251,11 @@ public class SqlSelectFetcher extends SqlFetcher{
     
     @Override
     public boolean judgeCorrect(){
+        this.fetchTableMapping();
         String patternStr = "SELECT";
         Pattern pattern = Pattern.compile(patternStr);
         Matcher matcher = pattern.matcher(this.statement);
+        System.out.println(this.statement);
         
         if (matcher.find()) {
             String intruciton;
@@ -302,7 +304,7 @@ public class SqlSelectFetcher extends SqlFetcher{
             matcher = pattern.matcher(this.statement.toUpperCase());
             while (matcher.find()) {                
                 String table = matcher.group().replace(".", "");
-                System.out.println(matcher.group());
+//                System.out.println(matcher.group());
                 boolean bool = false;
                 ArrayList<String> list = this.fetchFromExpressions();
                 for (String str : list) {

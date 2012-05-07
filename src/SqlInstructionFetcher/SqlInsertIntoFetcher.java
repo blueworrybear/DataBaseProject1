@@ -74,7 +74,7 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
      */
     public ArrayList<Object> fetchInsertValue(){
         ArrayList<Object> insertValues = new ArrayList<Object>();
-        String patternStr = "VALUES\\s?\\((\\s?[\"\']?(\\w|\\s)+[\"\']?\\s?,?\\s?)+\\)";
+        String patternStr = "VALUES\\s?\\((\\s?[\"\']?.+[\"\']?\\s?,?\\s?)+\\)";
         Pattern pattern = Pattern.compile(patternStr);
         Matcher matcher = pattern.matcher(this.statement.toUpperCase());
         if (matcher.find()) {
@@ -82,7 +82,7 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
             values = values.replaceAll("^VALUES", "");
 //            values = values.replaceAll("\\s", "");
 //            System.out.println(values);
-            String _patternStr = "([\'\"](\\w|\\s)+[\'\"]|\\d+)";
+            String _patternStr = "([\'\"].+?[\'\"]|\\d+)";
             Pattern _pattern = Pattern.compile(_patternStr);
             Matcher _matcher = _pattern.matcher(values);
             while (_matcher.find()) {                
@@ -93,7 +93,7 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
                 }else{
                     insertValues.add(value);
                 }
-//                System.out.println("value:"+value);
+                System.out.println("value:"+value);
             }
         }
         return insertValues;

@@ -4,6 +4,7 @@
  */
 package SqlInstructionFetcher;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import model.*;
@@ -149,14 +150,14 @@ public class SqlSelectFetcher extends SqlFetcher{
             return null;
         }
         
-        patternStr = "\\s?(\\w+\\s?\\.\\s?)?\\w+\\s?(=|>|<|<=|>=)\\s?(\\w+\\s?\\.\\s?)?\\w+\\s?,?";
+        patternStr = "\\s?(\\w+\\s?\\.\\s?)?(\'|\")?\\s?\\w+\\s?(\'|\")?\\s?(=|>|<|<=|>=)\\s?(\\w+\\s?\\.\\s?)?(\'|\")?\\s?\\w+\\s?(\'|\")?\\s?,?";
         pattern = Pattern.compile(patternStr);
         matcher = pattern.matcher(instruciton);
         
         while (matcher.find()) { 
-//            System.out.println(matcher.group());
+            System.out.println("clause:"+matcher.group());
             SelectWhere where = new SelectWhere();
-            String _patternStr = "\\s?(\\w+\\s?\\.\\s?)?\\w+\\s?";
+            String _patternStr = "\\s?(\\w+\\s?\\.\\s?)?[\\\'|\\\"]?\\w+[\\\'|\\\"]?\\s?";
             Pattern _pattern = Pattern.compile(_patternStr);
             Matcher _matcher = _pattern.matcher(matcher.group(0));
             int i = 0;
@@ -185,10 +186,21 @@ public class SqlSelectFetcher extends SqlFetcher{
                 if (this.tableNumber == 1) {
                     Iterator it = this.table_map.entrySet().iterator();
                     Map.Entry<String,String> en = (Map.Entry<String,String>) it.next();
+                    /*Check for the Pure String not to put value into operand_tableName*/
                     if (i == 0) {
-                        where.set_operand1_tableName(en.getValue());
+                        String tmp_pattern = "(\"|\')";
+                        Pattern tmp_paPattern = Pattern.compile(tmp_pattern);
+                        Matcher tmp_matcher = tmp_paPattern.matcher(_instruction);
+                        if (!tmp_matcher.find()) {
+                            where.set_operand1_tableName(en.getValue());
+                        }
                     }else{
-                        where.set_operand2_tableName(en.getValue());
+                        String tmp_pattern = "(\"|\')";
+                        Pattern tmp_paPattern = Pattern.compile(tmp_pattern);
+                        Matcher tmp_matcher = tmp_paPattern.matcher(_instruction);
+                        if (!tmp_matcher.find()) {
+                            where.set_operand2_tableName(en.getValue());
+                        }
                     }
                 }
                 if (i == 0) {
@@ -198,7 +210,7 @@ public class SqlSelectFetcher extends SqlFetcher{
                     }catch(Exception e){
                         where.set_operand1_is_integer(false);
                     }
-                    where.set_operand1_column(_instruction.replace(" ", ""));
+                    where.set_operand1_column(_instruction.replace(" ", "").replace("\"", "").replace("'", ""));
                 }else{
                     try{
                         int t = Integer.parseInt(_instruction.replace(" ", ""));
@@ -206,7 +218,7 @@ public class SqlSelectFetcher extends SqlFetcher{
                     }catch(Exception e){
                         where.set_operand2_is_integer(false);
                     }
-                    where.set_operand2_column(_instruction.replace(" ", ""));
+                    where.set_operand2_column(_instruction.replace(" ", "").replace("\"", "").replace("'", ""));
                 }
                 i++;
             }
@@ -225,9 +237,15 @@ public class SqlSelectFetcher extends SqlFetcher{
     
      public ArrayList<String> fetchFromExpressions(){
         //  need to be implement
+         ArrayList<String> result = new ArrayList<String>();
+        Set entries =  this.table_map.entrySet();
+        Object[] list = entries.toArray();
+        for(int i = 0; i < this.tableNumber; i++){
+            Entry en = (Entry) list[i];
+            result.add((String)en.getValue());
+        }
         
-        return null;
-        
+        return result;
     }
     
     @Override
@@ -249,7 +267,7 @@ public class SqlSelectFetcher extends SqlFetcher{
                 return false;
             }
 
-
+            /*Check for the SELECT part is correct*/
             patternStr = "(COUNT\\s?\\(|SUM\\s?\\()?(\\s?\\w*\\s?(\\.)?\\s?\\w+\\s?|\\*)(\\))?\\s?,?\\s?";
             pattern = Pattern.compile(patternStr);
             matcher = pattern.matcher(intruciton.replace("SELECT", ""));
@@ -272,10 +290,32 @@ public class SqlSelectFetcher extends SqlFetcher{
                 _patternStr = "\\w+\\.";
                 _pattern = Pattern.compile(_patternStr);
                 _matcher = _pattern.matcher(_instruction);
-//                System.out.println(_instruction);
+//                System.out.println("judge "+_instruction);
                 if (!_matcher.find() && this.tableNumber > 1) {
                     return false;
                 }
+            }
+            /*Check for the WHERE part is correct*/
+            patternStr = "\\w\\.";
+            pattern = Pattern.compile(patternStr);
+            matcher = pattern.matcher(this.statement.toUpperCase());
+            while (matcher.find()) {                
+                String table = matcher.group().replace(".", "");
+                System.out.println(matcher.group());
+                boolean bool = false;
+                ArrayList<String> list = this.fetchFromExpressions();
+                for (String str : list) {
+                    if (str.equals(table)) {
+                        bool = true;
+                    }
+                }
+                if (this.table_map.get(table) != null) {
+                    bool = true;
+                }
+                if (!bool) {
+                    return false;
+                }
+                
             }
         }else{
             return false;

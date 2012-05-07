@@ -10,6 +10,7 @@ import SqlContentFileManipulation.FileScanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import SqlInstructionFetcher.SqlSelectFetcher;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Iterator;
 import model.SelectColumn;
@@ -27,7 +28,12 @@ public class DataBaseProject1 {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        /*SqlSelectFetcher select = new SqlSelectFetcher("SELECT E.NAME FROM EMPLOYEE AS E,DEPARTMENT AS D WHERE D.NAME = D.NO, E.NAME > 10");
+        
+        System.out.println("Start");
+        String sql = "SELECT E.NAME FROM EMPLOYEE AS E,DEPARTMENT AS D WHERE D.NAME = \"HI\", E.NAME > 10,E.NO = \"WLL\",E.NO = D.NO,E.NO = 0";
+//        String sql = "SELECT NAME FROM EMPLOYEE WHERE NAME = \"YES\" AND NO = \"REIRKLEJLK\"";
+        SqlSelectFetcher select = new SqlSelectFetcher(sql);
+        System.out.println(sql);
         select.fetchTableMapping();
         ArrayList<SelectWhere> list = select.fetchWhereExpressions();
         Iterator it = list.iterator();
@@ -40,7 +46,12 @@ public class DataBaseProject1 {
             System.out.println("true");
         }else{
             System.out.println("false");
-        }*/
+        }
+        ArrayList<String> _list = select.fetchFromExpressions();
+        for (String str : _list) {
+            System.out.println(str);
+        }
+        
         
         /*
          * NOTICE:

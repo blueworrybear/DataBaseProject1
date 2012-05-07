@@ -10,6 +10,7 @@ import SqlInstructionFetcher.SqlInsertIntoFetcher;
 import SqlInstructionFetcher.SqlSelectFetcher;
 import SqlManipulation.SqlCreateTableExec;
 import SqlManipulation.SqlInsertTableExec;
+import SqlManipulation.SqlSelectTableExec;
 import java.io.File;
 import java.io.FileWriter;
 import java.lang.Exception;
@@ -27,7 +28,7 @@ import java.util.logging.Logger;
    
 public class SqlExecutionFactory {
     
-    public static queryDataRecord record = new queryDataRecord();
+    public static queryDataRecord dataRecord = new queryDataRecord();
     
     Object dataBaseHandler;
     private SqlStatementType sqlType;
@@ -108,15 +109,7 @@ public class SqlExecutionFactory {
                 /*This is the object that let you access the information of the instruction.*/
                 SqlInsertIntoFetcher insertFetcher = new SqlInsertIntoFetcher(this.sqlIns);
                 if (insertFetcher.judgeCorrect()) {
-                    /**
-                     * To subSeven:
-                     * Add your own code below by using insertFetcher.
-                     * The correctness of the instruction has been judge, you
-                     * don't need to worry about that.
-                     * BTW, it is suggested to use iterator to access ArrayList.
-                     * The usage way is much like the example above.
-                     */
-                    //System.out.println(this.sqlIns);
+                    
                     SqlInsertTableExec sqlExec = new SqlInsertTableExec(insertFetcher);
                     sqlExec.exec();
                     sqlExec.display();
@@ -131,7 +124,9 @@ public class SqlExecutionFactory {
                 
                 if(selectFetcher.judgeCorrect()){
                     
-                    
+                    SqlSelectTableExec sqlExec = new SqlSelectTableExec(selectFetcher);
+                    sqlExec.exec();
+                    sqlExec.display();
                     
                     
                 }else{

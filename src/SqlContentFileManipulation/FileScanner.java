@@ -50,7 +50,7 @@ public class FileScanner {
         
         HashMap<String, Object> table = new HashMap<String, Object>();
         File contentFile;
-        SqlColNameFileParser colNameParser = new SqlColNameFileParser();
+        //SqlColNameFileParser colNameParser = new SqlColNameFileParser();
         ArrayList<Map<String,Object>> colInfo = new ArrayList<Map<String,Object>>();
         ArrayList<String> colName = new ArrayList<String>();
         ArrayList<Boolean> colPK = new ArrayList<Boolean>();
@@ -79,7 +79,7 @@ public class FileScanner {
              contentFile = new File(tableName+"_content.txt");
              if(contentFile.exists()){
                  
-                 colInfo = colNameParser.parseColNameFile(tableName);
+                 colInfo = SqlColNameFileParser.parseColNameFile(tableName);
                  
                  it = colInfo.iterator();
                  
@@ -89,10 +89,7 @@ public class FileScanner {
                      colName.add((String)map.get("Name"));
                      colPK.add((Boolean)map.get("PRIMARY"));
                      
-                 }
-                 
-                 
-                 
+                 } 
                  
                 try {
                     FileReader fReader = new FileReader(contentFile);
@@ -107,21 +104,24 @@ public class FileScanner {
                             
                         
                      }
-                    for(int i=0;i<contentUnarranged.size();i++)
+                    
+                    int numberOfRow = contentUnarranged.size()/colName.size();
+                    int numberOfCol = colName.size();
+                    for(int row=0;row<numberOfRow;row++)
                     {
                         HashMap<String, Object> tupleMap = new HashMap<String, Object>();
                         String primaryKey = "";
                         
-                        tupleMap.put(colName.get(i%colName.size()), contentUnarranged.get(i));
-                        if( colPK.get(i%colPK.size()) )
+                        for(int index=0;index<numberOfCol;index++)
                         {
-                            primaryKey += contentUnarranged.get(i);
+                            int position = row*numberOfCol + index;
+                            tupleMap.put(colName.get(index), contentUnarranged.get(position));
+                            if( colPK.get(index) )
+                            {
+                                primaryKey += contentUnarranged.get(position);
+                            }
                         }
-                        if(i%colName.size() == 0 && i!=0)
-                        {
-                            table.put(primaryKey, tupleMap);
-                        }
-                        
+                        table.put(primaryKey, tupleMap);
                     }
                         
                         

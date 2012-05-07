@@ -18,11 +18,15 @@ public class SqlSelectTableExec {
     
     SqlSelectFetcher selectFetcher;
     HashMap<String, ArrayList<Object>> outputTable;
+    ArrayList<SelectColumn> outputColumn;
+    int count;
     
     public SqlSelectTableExec(SqlSelectFetcher selectFetcher)
     {
         this.selectFetcher = selectFetcher;
         outputTable = new HashMap<String, ArrayList<Object>>();
+        outputColumn = selectFetcher.fetchColumns();
+        count = 0;
     }
     
     public String operandType(String tableName, String colName)
@@ -287,6 +291,23 @@ public class SqlSelectTableExec {
         return false;
     }
     
+    public void sumAgg(Map<String, Map<String, Object>> tupleHash)
+    {
+        for(int i=0;i<outputColumn.size();i++)
+        {
+            if( outputColumn.get(i).getAggregation().equals("SUM") )
+            {
+                Map<String, Object> tuple = tupleHash.get(outputColumn.get(i).getTable());
+                if( tuple != null )
+                {
+                    int colValue = Integer.parseInt((String)tuple.get(outputColumn.get(i).getColumn()));
+                    outputColumn.get(i).addSum(colValue);
+                }
+            }
+        }
+        
+    }
+    
     public boolean exec()
     {   
         if( !checkSyntex() )
@@ -300,8 +321,6 @@ public class SqlSelectTableExec {
         ArrayList<Object> tableList2;
         ArrayList<Object> outcome1 = new ArrayList<Object>();
         ArrayList<Object> outcome2 = new ArrayList<Object>();
-        int count = 0;
-        int sum = 0;
         
         if( fromTable.size() == 1 )   // Table number = 1
         {
@@ -311,20 +330,24 @@ public class SqlSelectTableExec {
             for(int i=0;i<tableList1.size();i++)
             {
                 tuple.put(fromTable.get(0), tableList1.get(i));
+                
                 if( selectFetcher.fetchBooleanFunction().equals("AND") &&
                     ( booleanExp(clause.get(0), tuple) && booleanExp(clause.get(1), tuple) ) )   //  AND
                 {
                     outcome1.add(tableList1.get(i));
-                    count++;
+                    this.count++;
+                    this.sumAgg(tuple);
                 }else if( selectFetcher.fetchBooleanFunction().equals("OR") &&
                     ( booleanExp(clause.get(0), tuple) || booleanExp(clause.get(1), tuple) ) )   // OR
                 {
                     outcome1.add(tableList1.get(i));
-                    count++;
+                    this.count++;
+                    this.sumAgg(tuple);
                 }else if( selectFetcher.fetchBooleanFunction().equals("") && booleanExp(clause.get(0), tuple) )
                 {
                     outcome1.add(tableList1.get(i));
-                    count++;
+                    this.count++;
+                    this.sumAgg(tuple);
                 }
                 tuple.remove(fromTable.get(0));
             }
@@ -349,18 +372,21 @@ public class SqlSelectTableExec {
                     {
                         outcome1.add(tableList1.get(i));
                         outcome2.add(tableList2.get(j));
-                        count++;
+                        this.count++;
+                        this.sumAgg(tuple);
                     }else if( selectFetcher.fetchBooleanFunction().equals("OR") && 
                         ( booleanExp(clause.get(0), tuple) || booleanExp(clause.get(1), tuple) ) )   // OR
                     {
                         outcome1.add(tableList1.get(i));
                         outcome2.add(tableList2.get(j));
-                        count++;
+                        this.count++;
+                        this.sumAgg(tuple);
                     }else if( selectFetcher.fetchBooleanFunction().equals("") && booleanExp(clause.get(0), tuple) )
                     {
                         outcome1.add(tableList1.get(i));
                         outcome2.add(tableList2.get(j));
-                        count++;
+                        this.count++;
+                        this.sumAgg(tuple);
                     }
                     
                     tuple.remove(fromTable.get(1));
@@ -378,18 +404,17 @@ public class SqlSelectTableExec {
     
     public void display()
     {
-        ArrayList<SelectColumn> column = selectFetcher.fetchColumns();
         
-        if( column.get(0).getAggregation() == null )
+        if( outputColumn.get(0).getAggregation() == null )
         {
-            int rowNum = outputTable.get(column.get(0).getTable()).size();
+            int rowNum = outputTable.get(outputColumn.get(0).getTable()).size();
         
             for(int row=0;row<rowNum;row++)
             {
-                for(int col=0;col<column.size();col++)
+                for(int col=0;col<outputColumn.size();col++)
                 {
-                    String tableName = column.get(col).getTable();
-                    String colName = column.get(col).getColumn();
+                    String tableName = outputColumn.get(col).getTable();
+                    String colName = outputColumn.get(col).getColumn();
         
                     String value = ((Map<String, Object>)outputTable.get(tableName).get(row)).get(colName).toString();
                 
@@ -399,14 +424,16 @@ public class SqlSelectTableExec {
             }
         }else
         {
-            for(int i=0;i<column.size();i++)
+            for(int i=0;i<outputColumn.size();i++)
             {
-                if( column.get(i).getAggregation().equals("COUNT") )
+                if( outputColumn.get(i).getAggregation().equals("SUM") )
                 {
-                    System.out.printf("");
-                }else
+                    System.out.print(outputColumn.get(i).getSum());
+                    System.out.print(" ");
+                }else if( outputColumn.get(i).getAggregation().equals("COUNT") )
                 {
-                    System.out.printf("");
+                    System.out.print(count);
+                    System.out.print(" ");
                 }
             }
         }

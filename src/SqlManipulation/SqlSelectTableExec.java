@@ -418,9 +418,9 @@ public class SqlSelectTableExec {
     public void display()
     {
         
-        if( outputColumn.get(0).getAggregation() == null )
+        if( outputColumn.get(0).getAggregation().equals("") )
         {
-            if( outputColumn.size() > 1 )
+            if( !outputColumn.get(0).getColumn().equals("*") )
             {
                 for(int row=0;row<count;row++)
                 {
@@ -467,6 +467,7 @@ public class SqlSelectTableExec {
                             
                             System.out.print(value+"  ");
                         }
+                        System.out.println();
                     }
                 }
             }

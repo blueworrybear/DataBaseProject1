@@ -79,7 +79,7 @@ public class SqlSelectFetcher extends SqlFetcher{
         }
         
         
-        patternStr = "((COUNT|SUM)\\s?\\(.+?\\))|((\\w+\\.)?\\w+)";
+        patternStr = "((COUNT|SUM)\\s?\\(.+?\\))|((\\w+\\.)?\\w+)|(\\*)";
         pattern = Pattern.compile(patternStr);
         matcher = pattern.matcher(intruciton.replace("SELECT", ""));
         while (matcher.find()) {       

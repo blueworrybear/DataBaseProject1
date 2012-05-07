@@ -223,6 +223,13 @@ public class SqlSelectFetcher extends SqlFetcher{
         return list;
     }
     
+     public ArrayList<String> fetchFromExpressions(){
+        //  need to be implement
+        
+        return null;
+        
+    }
+    
     @Override
     public boolean judgeCorrect(){
         String patternStr = "SELECT";

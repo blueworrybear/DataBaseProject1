@@ -122,7 +122,7 @@ public class SqlInsertTableExec {
     
     private void prepareNoFile(){
         
-        hash = (HashMap<String, Object>) SqlExecutionFactory.record.getHashTable(tableName);
+        hash = (HashMap<String, Object>) SqlExecutionFactory.dataRecord.getHashTable(tableName);
         
         if(hash==null){
             hash = new HashMap<String,Object>();

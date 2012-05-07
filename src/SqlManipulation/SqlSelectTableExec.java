@@ -84,21 +84,35 @@ public class SqlSelectTableExec {
                 }
             }else
             {
-                if( !col.getColumn().equals("*") )
+                if( col.getAggregation().equals("SUM") )
                 {
-                    if( !this.isColInTable(col.getTable(), col.getColumn()) )
+                    if( col.getColumn().equals("*") )
+                    {
+                        System.out.println("Syntex error : \"*\" cannot in SUM aggregation.");
+                        return false;
+                    }else if( !this.isColInTable(col.getTable(), col.getColumn()) )
                     {
                         System.out.println("Syntex error : Column \""+col.getColumn()+"\" is not exit in the table \""+col.getTable()+"\".");
                         return false;
-                    }else
+                    }
+                    
+                    if( !this.operandType(col.getTable(), col.getColumn()).equals("INT") )
                     {
-                        if( col.getAggregation().equals("SUM") && !this.operandType(col.getTable(), col.getColumn()).equals("INT") )
+                        System.out.println("Syntex error : The type of column \""+col.getColumn()+"\" is not integer(In the SUM aggregation function).");
+                        return false;
+                    }
+                }else
+                {
+                    if( !col.getColumn().equals("*") )
+                    {
+                        if( !this.isColInTable(col.getTable(), col.getColumn()) )
                         {
-                            System.out.println("Syntex error : The type of column \""+col.getColumn()+"\" is not integer(In the SUM aggregation function).");
+                            System.out.println("Syntex error : Column \""+col.getColumn()+"\" is not exit in the table \""+col.getTable()+"\".");
                             return false;
                         }
                     }
                 }
+                
                 aggCount++;
             }
         }
@@ -407,20 +421,55 @@ public class SqlSelectTableExec {
         
         if( outputColumn.get(0).getAggregation() == null )
         {
-            int rowNum = outputTable.get(outputColumn.get(0).getTable()).size();
-        
-            for(int row=0;row<rowNum;row++)
+            if( outputColumn.size() > 1 )
             {
-                for(int col=0;col<outputColumn.size();col++)
+                for(int row=0;row<count;row++)
                 {
-                    String tableName = outputColumn.get(col).getTable();
-                    String colName = outputColumn.get(col).getColumn();
+                    for(int col=0;col<outputColumn.size();col++)
+                    {
+                        String tableName = outputColumn.get(col).getTable();
+                        String colName = outputColumn.get(col).getColumn();
         
-                    String value = ((Map<String, Object>)outputTable.get(tableName).get(row)).get(colName).toString();
+                        String value = ((Map<String, Object>)outputTable.get(tableName).get(row)).get(colName).toString();
                 
-                    System.out.printf(" %s ",value);
+                        System.out.printf(" %s ",value);
+                    }
+                    System.out.printf("\n");
                 }
-                System.out.printf("\n");
+            }else
+            {
+                HashMap<String, ArrayList<String>> colHash = new HashMap<String, ArrayList<String>>();
+               
+                
+                ArrayList<String> tableName = selectFetcher.fetchFromExpressions();
+                for(int i=0;i<tableName.size();i++)
+                {
+                    ArrayList<String> colSet = new ArrayList<String>();
+                    ArrayList<Map<String, Object>> colInfo = SqlColNameFileParser.parseColNameFile(tableName.get(i));
+                    
+                    Iterator it = colInfo.iterator();
+                    while(it.hasNext())
+                    {
+                        Map<String, Object> col = (Map<String, Object>)it.next();
+                        String colName = col.get("Name").toString();
+                        colSet.add(colName);
+                    }
+                    colHash.put(tableName.get(i), colSet);
+                }
+                
+                for(int row=0;row<count;row++)
+                {
+                    for(int i=0;i<tableName.size();i++)
+                    {
+                        ArrayList<String> colSet = colHash.get(tableName.get(i));
+                        for(int col=0;col<colSet.size();col++)
+                        {
+                            String value = ((Map<String, Object>)outputTable.get(tableName.get(i)).get(row)).get(colSet.get(col)).toString();
+                            
+                            System.out.print(value+"  ");
+                        }
+                    }
+                }
             }
         }else
         {

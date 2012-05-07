@@ -64,7 +64,7 @@ public class SqlSelectFetcher extends SqlFetcher{
     }
     
     public ArrayList<SelectColumn> fetchColumns(){
-        
+        this.fetchTableMapping();
         String intruciton = new String();
         ArrayList<SelectColumn> list = new ArrayList<SelectColumn>();
         
@@ -126,17 +126,18 @@ public class SqlSelectFetcher extends SqlFetcher{
     }
     
     public String fetchBooleanFunction(){
+        this.fetchTableMapping();
         String patternStr = "(AND|OR)";
         Pattern pattern = Pattern.compile(patternStr);
         Matcher matcher = pattern.matcher(this.statement.toUpperCase());
         if (matcher.find()) {
             return matcher.group(0);
         }
-        return null;
+        return "";
     }
     
     public ArrayList<SelectWhere> fetchWhereExpressions(){
-        
+        this.fetchTableMapping();
         String instruciton = new String();
         ArrayList<SelectWhere>list = new ArrayList<SelectWhere>();
         
@@ -150,12 +151,12 @@ public class SqlSelectFetcher extends SqlFetcher{
             return null;
         }
         
-        patternStr = "\\s?(\\w+\\s?\\.\\s?)?(\'|\")?\\s?\\w+\\s?(\'|\")?\\s?(=|>|<|<=|>=)\\s?(\\w+\\s?\\.\\s?)?(\'|\")?\\s?\\w+\\s?(\'|\")?\\s?,?";
+        patternStr = "\\s?((\\w+\\.\\w+)|((\'|\")(.+?(\'\'\')*(\"\"\")*)+?(\'|\")|\\w+)|\\d+)\\s?(=|>|<|<=|>=)\\s?((\\w+\\.\\w+)|((\'|\")(.+?(\'\'\')*(\"\"\")*)+?(\'|\"))|\\d+|\\w+)\\s?,?";
         pattern = Pattern.compile(patternStr);
         matcher = pattern.matcher(instruciton);
         
         while (matcher.find()) { 
-            System.out.println("clause:"+matcher.group());
+            
             SelectWhere where = new SelectWhere();
             String _patternStr = "\\s?(\\w+\\s?\\.\\s?)?[\\\'|\\\"]?\\w+[\\\'|\\\"]?\\s?";
             Pattern _pattern = Pattern.compile(_patternStr);
@@ -229,7 +230,7 @@ public class SqlSelectFetcher extends SqlFetcher{
                 where.set_operator(_matcher.group(0));
             }
 //            System.out.println(where.get_operand1_tableName()+"."+where.get_operand1_column()+where.get_operator()+where.get_operand2_tableName()+"."+where.get_operand2_column());
-         
+            
             list.add(where);
         }
         return list;
@@ -250,9 +251,11 @@ public class SqlSelectFetcher extends SqlFetcher{
     
     @Override
     public boolean judgeCorrect(){
+        this.fetchTableMapping();
         String patternStr = "SELECT";
         Pattern pattern = Pattern.compile(patternStr);
         Matcher matcher = pattern.matcher(this.statement);
+        System.out.println(this.statement);
         
         if (matcher.find()) {
             String intruciton;
@@ -301,7 +304,7 @@ public class SqlSelectFetcher extends SqlFetcher{
             matcher = pattern.matcher(this.statement.toUpperCase());
             while (matcher.find()) {                
                 String table = matcher.group().replace(".", "");
-                System.out.println(matcher.group());
+//                System.out.println(matcher.group());
                 boolean bool = false;
                 ArrayList<String> list = this.fetchFromExpressions();
                 for (String str : list) {

@@ -48,7 +48,6 @@ public class SqlSelectTableExec {
     public boolean isColInTable(String tableName, String colName)
     {
         ArrayList<Map<String, Object>> colInfo;
-         
         colInfo = SqlColNameFileParser.parseColNameFile(tableName);
         Iterator it = colInfo.iterator();
         while(it.hasNext())
@@ -131,7 +130,7 @@ public class SqlSelectTableExec {
     public boolean checkWhereLogic(int num)
     {
         ArrayList<SelectWhere> clause = selectFetcher.fetchWhereExpressions();
-        
+                
         if( clause.get(num).get_operand1_is_integer() && isColInTable(clause.get(num).get_operand2_tableName(), clause.get(num).get_operand2_column()) )
         {
             if(this.operandType(clause.get(num).get_operand2_tableName(), clause.get(num).get_operand2_column()).equals("INT"))
@@ -227,11 +226,11 @@ public class SqlSelectTableExec {
     public boolean booleanExp(SelectWhere clause, Map<String, Object> tuple)
     {
         String operator = clause.get_operator();
-        
+//        System.out.println(clause.get_operand1_tableName()+"."+clause.get_operand1_column()+clause.get_operator()+clause.get_operand2_tableName()+"."+clause.get_operand2_column());
         if( clause.get_operand1_is_integer() )
         {
             int op1 = Integer.parseInt(clause.get_operand1_column());
-            int op2 = (Integer)( (Map<String, Object>)( tuple.get(clause.get_operand2_tableName()) ) ).get(clause.get_operand2_column());
+            int op2 = Integer.parseInt((String)( (Map<String, Object>)( tuple.get(clause.get_operand2_tableName()) ) ).get(clause.get_operand2_column()));
             
             if( (operator.equals("=") && op1==op2) || (operator.equals(">") && op1>op2) || (operator.equals("<") && op1<op2) )
             {
@@ -240,9 +239,8 @@ public class SqlSelectTableExec {
             
         }else if( clause.get_operand2_is_integer() )
         {
-            int op1 = (Integer)( (Map<String, Object>)( tuple.get(clause.get_operand1_tableName()) ) ).get(clause.get_operand1_column());
+            int op1 = Integer.parseInt((String)( (Map<String, Object>)( tuple.get(clause.get_operand1_tableName()) ) ).get(clause.get_operand1_column()));
             int op2 = Integer.parseInt(clause.get_operand2_column());
-            
             if( (operator.equals("=") && op1==op2) || (operator.equals(">") && op1>op2) || (operator.equals("<") && op1<op2) )
             {
                 return true;
@@ -313,7 +311,6 @@ public class SqlSelectTableExec {
             for(int i=0;i<tableList1.size();i++)
             {
                 tuple.put(fromTable.get(0), tableList1.get(i));
-                
                 if( selectFetcher.fetchBooleanFunction().equals("AND") &&
                     ( booleanExp(clause.get(0), tuple) && booleanExp(clause.get(1), tuple) ) )   //  AND
                 {
@@ -324,7 +321,7 @@ public class SqlSelectTableExec {
                 {
                     outcome1.add(tableList1.get(i));
                     count++;
-                }else if( booleanExp(clause.get(0), tuple) )
+                }else if( selectFetcher.fetchBooleanFunction().equals("") && booleanExp(clause.get(0), tuple) )
                 {
                     outcome1.add(tableList1.get(i));
                     count++;
@@ -359,7 +356,7 @@ public class SqlSelectTableExec {
                         outcome1.add(tableList1.get(i));
                         outcome2.add(tableList2.get(j));
                         count++;
-                    }else if( booleanExp(clause.get(0), tuple) )
+                    }else if( selectFetcher.fetchBooleanFunction().equals("") && booleanExp(clause.get(0), tuple) )
                     {
                         outcome1.add(tableList1.get(i));
                         outcome2.add(tableList2.get(j));

@@ -91,6 +91,7 @@ public class SqlSelectFetcher extends SqlFetcher{
             String _patternStr = "(COUNT|SUM)";
             Pattern _pattern = Pattern.compile(_patternStr);
             Matcher _matcher = _pattern.matcher(_instruction);
+            select.setAggregation("");
             if (_matcher.find()) {
                 select.setAggregation(_matcher.group(0));
                 _instruction = _instruction.replace(_matcher.group(0), "").replace("(", "").replace(")", "");

@@ -15,6 +15,7 @@ public class SelectColumn {
     String aggregation;
     int sum;
     
+    
     public SelectColumn()
     {
         sum = 0;

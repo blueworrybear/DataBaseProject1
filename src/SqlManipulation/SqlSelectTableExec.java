@@ -295,7 +295,7 @@ public class SqlSelectTableExec {
     {
         for(int i=0;i<outputColumn.size();i++)
         {
-            if( outputColumn.get(i).getAggregation() != null && outputColumn.get(i).getAggregation().equals("SUM") )
+            if(  outputColumn.get(i).getAggregation().equals("SUM") )
             {
                 if( tupleHash.get(outputColumn.get(i).getTable()) != null )
                 {

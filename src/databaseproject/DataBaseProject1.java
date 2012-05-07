@@ -27,7 +27,9 @@ public class DataBaseProject1 {
      */
     public static void main(String[] args) {
         System.out.println("Start");
-        SqlSelectFetcher select = new SqlSelectFetcher("SELECT E.NAME FROM EMPLOYEE AS E,DEPARTMENT AS D WHERE D.NAME = D.NO, E.NAME > 10");
+        String sql = "SELECT E.NAME FROM EMPLOYEE AS E,DEPARTMENT AS D WHERE D.NAME = \"HI\", E.NAME > 10,E.NO = \"WLL\",E.NO = D.NO";
+        SqlSelectFetcher select = new SqlSelectFetcher(sql);
+        System.out.println(sql);
         select.fetchTableMapping();
         ArrayList<SelectWhere> list = select.fetchWhereExpressions();
         Iterator it = list.iterator();

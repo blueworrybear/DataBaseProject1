@@ -127,11 +127,11 @@ public class SqlSelectFetcher extends SqlFetcher{
     
     public String fetchBooleanFunction(){
         this.fetchTableMapping();
-        String patternStr = "(AND|OR)";
+        String patternStr = "\\s(AND|OR)\\s";
         Pattern pattern = Pattern.compile(patternStr);
         Matcher matcher = pattern.matcher(this.statement.toUpperCase());
         if (matcher.find()) {
-            return matcher.group(0);
+            return matcher.group(0).replace(" ", "");
         }
         return "";
     }
@@ -158,7 +158,7 @@ public class SqlSelectFetcher extends SqlFetcher{
         while (matcher.find()) { 
             
             SelectWhere where = new SelectWhere();
-            String _patternStr = "\\s?(\\w+\\s?\\.\\s?)?[\\\'|\\\"]?\\w+[\\\'|\\\"]?\\s?";
+            String _patternStr = "((\\w+\\.\\w+)|((\'|\")(.+?(\'\'\')*(\"\"\")*)+?(\'|\")|\\w+)|\\d+)";
             Pattern _pattern = Pattern.compile(_patternStr);
             Matcher _matcher = _pattern.matcher(matcher.group(0));
             int i = 0;
@@ -206,20 +206,20 @@ public class SqlSelectFetcher extends SqlFetcher{
                 }
                 if (i == 0) {
                     try{
-                        int t = Integer.parseInt(_instruction.replace(" ", ""));
+                        int t = Integer.parseInt(_instruction);
                         where.set_operand1_is_integer(true);
                     }catch(Exception e){
                         where.set_operand1_is_integer(false);
                     }
-                    where.set_operand1_column(_instruction.replace(" ", "").replace("\"", "").replace("'", ""));
+                    where.set_operand1_column(_instruction.replaceAll("^\"|\"$|^'|'$", ""));
                 }else{
                     try{
-                        int t = Integer.parseInt(_instruction.replace(" ", ""));
+                        int t = Integer.parseInt(_instruction);
                         where.set_operand2_is_integer(true);
                     }catch(Exception e){
                         where.set_operand2_is_integer(false);
                     }
-                    where.set_operand2_column(_instruction.replace(" ", "").replace("\"", "").replace("'", ""));
+                    where.set_operand2_column(_instruction.replaceAll("^\"|\"$|^'|'$", ""));
                 }
                 i++;
             }

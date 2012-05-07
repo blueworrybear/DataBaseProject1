@@ -91,7 +91,7 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
                 if (tmp_matcher.find()) {
                     insertValues.add(Integer.valueOf(value));
                 }else{
-                    insertValues.add(value);
+                    insertValues.add(value.replaceAll("^\"|\"$|^'|'$", ""));
                 }
 //                System.out.println("value:"+value);
             }

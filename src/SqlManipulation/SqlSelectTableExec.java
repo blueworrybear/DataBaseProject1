@@ -300,7 +300,6 @@ public class SqlSelectTableExec {
         {
             tableList1 = this.table(fromTable.get(0));
             Map tuple = new HashMap<String, Object>();
-            
             for(int i=0;i<tableList1.size();i++)
             {
                 tuple.put(fromTable.get(0), tableList1.get(i));

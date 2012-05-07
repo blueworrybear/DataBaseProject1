@@ -112,7 +112,7 @@ public class SqlExecutionFactory {
                     
                     SqlInsertTableExec sqlExec = new SqlInsertTableExec(insertFetcher);
                     sqlExec.exec();
-                    sqlExec.display();
+//                    sqlExec.display();
                     
                 }else{
                     throw invalidException;

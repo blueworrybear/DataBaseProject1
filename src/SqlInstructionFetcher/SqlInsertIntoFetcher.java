@@ -93,7 +93,7 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
                 }else{
                     insertValues.add(value);
                 }
-                System.out.println("value:"+value);
+//                System.out.println("value:"+value);
             }
         }
         return insertValues;
@@ -101,19 +101,35 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
     
     @Override
     public boolean judgeCorrect(){
-        String patternStr = "INSERT\\sINTO\\s\\w+\\s(\\((\\s?\\w+\\s?,?\\s?)+\\))?\\s?VALUES\\s?(\\(((\\s?[\"\']{1}\\s?.+\\s?[\"\']{1}\\s?,?\\s?)|(\\s?\\d+\\s?,\\s?))*\\)){1}\\s?;\\s?";
+//        String patternStr = "INSERT\\sINTO\\s\\w+\\s(\\((\\s?\\w+\\s?,?\\s?)+\\))?\\s?VALUES\\s?(\\(((\\s?[\"\']{1}\\s?.+\\s?[\"\']{1}\\s?,?\\s?)|(\\s?\\d+\\s?,\\s?))*\\)){1}\\s?;\\s?";
 //        String patternStr = "INSERT\\sINTO\\s\\w+\\s(\\((\\s?\\w+\\s?,?\\s?)+\\))?\\s?VALUES\\s?(\\("+typeStringPattern1+"*"+typeStringPattern2+"?\\)){1}\\s?;\\s?";
 //        String patternStr = this.typeStringPattern1;
 //        String patternStr = "[A-Za-z0-9(),&&[^\'\"]]";
+        String patternStr = "VALUES.+";
         Pattern pattern = Pattern.compile(patternStr);
         //System.out.println(pattern.toString());
+//        System.out.println(this.statement);
         Matcher matcher = pattern.matcher(this.statement.toUpperCase());
-        boolean matcher_correct = matcher.find();
         
-        if (matcher_correct) {
-//            System.out.println(matcher.group(0));
+        if (matcher.find()) {
+            String value_part = matcher.group(0);
+            patternStr = "\\(((\\s?\\d+\\s?,)|(\\s?(\'|\").+?(\'|\")\\s?,))+((\\s?\\d+\\s?)|(\\s?(\'|\").+?(\'|\")\\s?))?\\)";
+            pattern = Pattern.compile(patternStr);
+            matcher = pattern.matcher(value_part);
+            if (matcher.find()) {
+                patternStr = "INSERT\\sINTO\\s?(\\(\\s?(\\w+\\s?,\\s?)+\\s?\\))?";
+                pattern = Pattern.compile(patternStr);
+                matcher = pattern.matcher(this.statement.replace(value_part, ""));
+                if (!matcher.find()) {
+                    return false;
+                }
+            }else{
+                return false;
+            }
+        }else{
+            return false;
         }
         
-        return matcher_correct;
+        return true;
     }
 }

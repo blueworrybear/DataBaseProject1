@@ -79,7 +79,7 @@ public class SqlSelectFetcher extends SqlFetcher{
         }
         
         
-        patternStr = "(COUNT\\s?\\(|SUM\\s?\\()?(\\s?\\w*\\s?(\\.)?\\s?\\w+\\s?|\\*)(\\))?\\s?,?\\s?";
+        patternStr = "((COUNT|SUM)\\s?\\(.+?\\))|((\\w+\\.)?\\w+)";
         pattern = Pattern.compile(patternStr);
         matcher = pattern.matcher(intruciton.replace("SELECT", ""));
         while (matcher.find()) {       
@@ -114,9 +114,9 @@ public class SqlSelectFetcher extends SqlFetcher{
                 Map.Entry<String,String> en = (Map.Entry<String,String>) it.next();
                 select.setTable(en.getValue());
             }   
-//            System.out.println("Table: "+select.getTable());
             
             select.setColumn(_instruction);
+            System.out.println("Table: "+select.getTable()+"  Column: "+select.getColumn()+"  AGG:"+select.getAggregation());
             list.add(select);
 //            System.out.println();
         }
@@ -271,13 +271,13 @@ public class SqlSelectFetcher extends SqlFetcher{
             }
 
             /*Check for the SELECT part is correct*/
-            patternStr = "(COUNT\\s?\\(|SUM\\s?\\()?(\\s?\\w*\\s?(\\.)?\\s?\\w+\\s?|\\*)(\\))?\\s?,?\\s?";
+            patternStr = "((COUNT|SUM)\\s?\\(.+?\\))|((\\w+\\.)?\\w+)";
             pattern = Pattern.compile(patternStr);
             matcher = pattern.matcher(intruciton.replace("SELECT", ""));
             while (matcher.find()) {       
                 SelectColumn select = new SelectColumn();
                 
-//                System.out.println(matcher.group(0));
+                System.out.println(matcher.group(0));
                 
                 String table;
                 String _instruction = matcher.group(0).replace(" ", "").replace(",", "");
@@ -304,7 +304,7 @@ public class SqlSelectFetcher extends SqlFetcher{
             matcher = pattern.matcher(this.statement.toUpperCase());
             while (matcher.find()) {                
                 String table = matcher.group().replace(".", "");
-//                System.out.println(matcher.group());
+                System.out.println(matcher.group());
                 boolean bool = false;
                 ArrayList<String> list = this.fetchFromExpressions();
                 for (String str : list) {

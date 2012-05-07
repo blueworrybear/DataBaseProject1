@@ -291,15 +291,15 @@ public class SqlSelectTableExec {
         return false;
     }
     
-    public void sumAgg(Map<String, Map<String, Object>> tupleHash)
+    public void sumAgg(Map<String, Object> tupleHash)
     {
         for(int i=0;i<outputColumn.size();i++)
         {
-            if( outputColumn.get(i).getAggregation().equals("SUM") )
+            if( outputColumn.get(i).getAggregation() != null && outputColumn.get(i).getAggregation().equals("SUM") )
             {
-                Map<String, Object> tuple = tupleHash.get(outputColumn.get(i).getTable());
-                if( tuple != null )
+                if( tupleHash.get(outputColumn.get(i).getTable()) != null )
                 {
+                    Map<String, Object> tuple = (Map<String, Object>)tupleHash.get(outputColumn.get(i).getTable());
                     int colValue = Integer.parseInt((String)tuple.get(outputColumn.get(i).getColumn()));
                     outputColumn.get(i).addSum(colValue);
                 }

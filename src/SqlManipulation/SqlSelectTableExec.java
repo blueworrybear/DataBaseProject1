@@ -45,46 +45,92 @@ public class SqlSelectTableExec {
         
     }
     
-    public boolean checkComparation(int num)
+    public boolean isColInTable(String tableName, String colName)
     {
-        ArrayList<SelectWhere> whereClause = selectFetcher.fetchWhereExpressions();
-        
-        if(         whereClause.get(num).get_operand1_is_integer() 
-                 && this.operandType(whereClause.get(num).get_operand2_tableName(), whereClause.get(num).get_operand2_column()).equals("INT") )
+        ArrayList<Map<String, Object>> colInfo;
+         
+        colInfo = SqlColNameFileParser.parseColNameFile(tableName);
+        Iterator it = colInfo.iterator();
+        while(it.hasNext())
         {
-                return true;
-        }else if(   whereClause.get(num).get_operand2_is_integer() 
-                 && this.operandType(whereClause.get(num).get_operand1_tableName(), whereClause.get(num).get_operand1_column()).equals("INT") )
-        {
-                return true;
-        }else if(   this.operandType(whereClause.get(num).get_operand1_tableName(), whereClause.get(num).get_operand1_column()).equals("INT")
-                 && this.operandType(whereClause.get(num).get_operand2_tableName(), whereClause.get(num).get_operand2_column()).equals("INT") )
-        {
-                return true;
-        }else if(   !this.operandType(whereClause.get(num).get_operand1_tableName(), whereClause.get(num).get_operand1_column()).equals("INT")
-                 && !this.operandType(whereClause.get(num).get_operand2_tableName(), whereClause.get(num).get_operand2_column()).equals("INT") )
-        {
-                if( whereClause.get(num).get_operator().equals("=") )
-                {
-                    return true;
-                }else
-                {
-                    System.out.println("Syntex error : cannot compare two String");
-                }
-        }else
-        {
-            System.out.println("Syntex error : incompatible type of Integer comparing with String");
+             Map<String, Object> col = (Map<String, Object>)it.next();
+             if( col.get("Name").toString().equals(colName) )
+             {
+                   return true;
+             }
         }
+        return false;
+    }
+    
+    public boolean checkLogic(int num)
+    {
+        ArrayList<SelectWhere> clause = selectFetcher.fetchWhereExpressions();
+        
+        if( clause.get(num).get_operand1_is_integer() && isColInTable(clause.get(num).get_operand2_tableName(), clause.get(num).get_operand2_column()) )
+        {
+            if(this.operandType(clause.get(num).get_operand2_tableName(), clause.get(num).get_operand2_column()).equals("INT"))
+            {
+                return true;
+            }else
+            {
+                System.out.println("Syntex error : incompatible type of Integer comparing with String");
+                return false;
+            }
+        }else if( clause.get(num).get_operand2_is_integer() && isColInTable(clause.get(num).get_operand1_tableName(), clause.get(num).get_operand1_column()) )
+        {
+            if( this.operandType(clause.get(num).get_operand1_tableName(), clause.get(num).get_operand1_column()).equals("INT") )
+            {
+                return true;
+            }else
+            {
+                System.out.println("Syntex error : incompatible type of Integer comparing with String");
+                return false;
+            }
+        }else if( clause.get(num).get_operand1_tableName() == null && isColInTable(clause.get(num).get_operand2_tableName(), clause.get(num).get_operand2_column()) )
+        {
+            if( !this.operandType(clause.get(num).get_operand2_tableName(), clause.get(num).get_operand2_column()).equals("INT") )
+            {
+                return true;
+            }else
+            {
+                System.out.println("Syntex error : incompatible type of Integer comparing with String");
+                return false;
+            }
+        }else if( clause.get(num).get_operand2_tableName() == null && isColInTable(clause.get(num).get_operand1_tableName(), clause.get(num).get_operand1_column()))
+        {
+            if( !this.operandType(clause.get(num).get_operand1_tableName(), clause.get(num).get_operand1_column()).equals("INT") )
+            {
+                return true;
+            }else
+            {
+                System.out.println("Syntex error : incompatible type of Integer comparing with String");
+                return false;
+            }
+        }else if( isColInTable(clause.get(num).get_operand1_tableName(), clause.get(num).get_operand1_column()) && isColInTable(clause.get(num).get_operand2_tableName(), clause.get(num).get_operand2_column()) )
+        {
+            if(    (     this.operandType(clause.get(num).get_operand1_tableName(), clause.get(num).get_operand1_column()).equals("INT")
+                      && this.operandType(clause.get(num).get_operand2_tableName(), clause.get(num).get_operand2_column()).equals("INT") )
+                || (     !this.operandType(clause.get(num).get_operand1_tableName(), clause.get(num).get_operand1_column()).equals("INT")
+                      && !this.operandType(clause.get(num).get_operand2_tableName(), clause.get(num).get_operand2_column()).equals("INT")  )   )
+            {
+                return true;
+            }else
+            {
+                System.out.println("Syntex error : incompatible type of Integer comparing with String");
+                return false;
+            }
+        }
+        System.out.println("Syntex error : column is not exit in the table");
         return false;
     }
     
     public boolean checkSyntex()
     {
         ArrayList<SelectWhere> whereClause = selectFetcher.fetchWhereExpressions();
-        if( whereClause.size() == 1 && checkComparation(0))
+        if( whereClause.size() == 1 && checkLogic(0))
         {
             return true;
-        }else if( whereClause.size() == 2 && checkComparation(0) && checkComparation(1) )
+        }else if( whereClause.size() == 2 && checkLogic(0) && checkLogic(1) )
         {
             return true;
         }
@@ -126,7 +172,7 @@ public class SqlSelectTableExec {
             {
                 return true;
             }
-        }else if( clause.get_operand1_tableName().equals("") )
+        }else if( clause.get_operand1_tableName() == null )
         {
             String op1 = clause.get_operand1_column();
             String op2 = ( (Map<String, Object>)( tuple.get(clause.get_operand2_tableName()) ) ).get(clause.get_operand2_column()).toString();
@@ -134,7 +180,7 @@ public class SqlSelectTableExec {
             {
                 return true;
             }
-        }else if( clause.get_operand2_tableName().equals("") )
+        }else if( clause.get_operand2_tableName() == null )
         {
             String op1 = ( (Map<String, Object>)( tuple.get(clause.get_operand1_tableName()) ) ).get(clause.get_operand1_column()).toString();
             String op2 = clause.get_operand2_column();
@@ -181,6 +227,8 @@ public class SqlSelectTableExec {
         ArrayList<Object> tableList2;
         ArrayList<Object> outcome1 = new ArrayList<Object>();
         ArrayList<Object> outcome2 = new ArrayList<Object>();
+        int count = 0;
+        int sum = 0;
         
         if( fromTable.size() == 1 )   // Table number = 1
         {
@@ -191,10 +239,12 @@ public class SqlSelectTableExec {
             {
                 tuple.put(fromTable.get(0), tableList1.get(i));
                 
-                if( booleanExp(clause.get(0), tuple) && booleanExp(clause.get(1), tuple) )   //  AND
+                if( selectFetcher.fetchBooleanFunction().equals("AND") &&
+                    ( booleanExp(clause.get(0), tuple) && booleanExp(clause.get(1), tuple) ) )   //  AND
                 {
                     outcome1.add(tableList1.get(i));
-                }else if( booleanExp(clause.get(0), tuple) || booleanExp(clause.get(1), tuple))   // OR
+                }else if( selectFetcher.fetchBooleanFunction().equals("OR") &&
+                    ( booleanExp(clause.get(0), tuple) || booleanExp(clause.get(1), tuple) ) )   // OR
                 {
                     outcome1.add(tableList1.get(i));
                 }else if( booleanExp(clause.get(0), tuple) )
@@ -219,11 +269,13 @@ public class SqlSelectTableExec {
                 {
                     tuple.put(fromTable.get(1), tableList2.get(i));
                 
-                    if( booleanExp(clause.get(0), tuple) && booleanExp(clause.get(1), tuple) )  // AND
+                    if( selectFetcher.fetchBooleanFunction().equals("AND") &&
+                        ( booleanExp(clause.get(0), tuple) && booleanExp(clause.get(1), tuple) ) )  // AND
                     {
                         outcome1.add(tableList1.get(i));
                         outcome2.add(tableList2.get(j));
-                    }else if( booleanExp(clause.get(0), tuple) || booleanExp(clause.get(1), tuple) )   // OR
+                    }else if( selectFetcher.fetchBooleanFunction().equals("OR") && 
+                        ( booleanExp(clause.get(0), tuple) || booleanExp(clause.get(1), tuple) ) )   // OR
                     {
                         outcome1.add(tableList1.get(i));
                         outcome2.add(tableList2.get(j));

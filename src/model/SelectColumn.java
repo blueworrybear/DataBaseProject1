@@ -13,6 +13,13 @@ public class SelectColumn {
     String column;
     String table;
     String aggregation;
+    int sum;
+    
+    public SelectColumn()
+    {
+        sum = 0;
+    }
+            
     
     public void setColumn(String str){
         this.column = str;
@@ -26,6 +33,11 @@ public class SelectColumn {
         this.aggregation = str;
     }
     
+    public void addSum(int value)
+    {
+        sum = sum + value;
+    }
+    
     public String getColumn(){
         return this.column;
     }
@@ -36,5 +48,10 @@ public class SelectColumn {
     
     public String getAggregation(){
         return this.aggregation;
+    }
+    
+    public int getSum()
+    {
+        return this.sum;
     }
 }

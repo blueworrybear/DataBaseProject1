@@ -18,11 +18,15 @@ public class SqlSelectTableExec {
     
     SqlSelectFetcher selectFetcher;
     HashMap<String, ArrayList<Object>> outputTable;
+    ArrayList<SelectColumn> outputColumn;
+    int count;
     
     public SqlSelectTableExec(SqlSelectFetcher selectFetcher)
     {
         this.selectFetcher = selectFetcher;
         outputTable = new HashMap<String, ArrayList<Object>>();
+        outputColumn = selectFetcher.fetchColumns();
+        count = 0;
     }
     
     public String operandType(String tableName, String colName)
@@ -73,19 +77,26 @@ public class SqlSelectTableExec {
             
             if( col.getAggregation()== null )
             {
-                if( !isColInTable(col.getTable(), col.getColumn()) )
+                if( !this.isColInTable(col.getTable(), col.getColumn()) )
                 {
-                    System.out.println("Syntex error : column \""+col.getColumn()+"\" is not exit in the table \""+col.getTable()+"\".");
+                    System.out.println("Syntex error : Column \""+col.getColumn()+"\" is not exit in the table \""+col.getTable()+"\".");
                     return false;
                 }
             }else
             {
                 if( !col.getColumn().equals("*") )
                 {
-                    if( !isColInTable(col.getTable(), col.getColumn()) )
+                    if( !this.isColInTable(col.getTable(), col.getColumn()) )
                     {
-                        System.out.println("Syntex error : column \""+col.getColumn()+"\" is not exit in the table \""+col.getTable()+"\".");
+                        System.out.println("Syntex error : Column \""+col.getColumn()+"\" is not exit in the table \""+col.getTable()+"\".");
                         return false;
+                    }else
+                    {
+                        if( col.getAggregation().equals("SUM") && !this.operandType(col.getTable(), col.getColumn()).equals("INT") )
+                        {
+                            System.out.println("Syntex error : The type of column \""+col.getColumn()+"\" is not integer(In the SUM aggregation function).");
+                            return false;
+                        }
                     }
                 }
                 aggCount++;
@@ -111,7 +122,7 @@ public class SqlSelectTableExec {
             String table = (String)it.next();
             if( SqlExecutionFactory.dataRecord.getHashTable(table) == null )
             {
-                System.out.println("Syntex error : table \""+table+"\" is not exist.");
+                System.out.println("Syntex error : Table \""+table+"\" is not exist.");
                 return false;
             }
         }
@@ -131,7 +142,7 @@ public class SqlSelectTableExec {
                 return true;
             }else
             {
-                System.out.println("Syntex error : incompatible type of Integer comparing with String.");
+                System.out.println("Syntex error : Incompatible type of Integer comparing with String.");
                 return false;
             }
         }else if( clause.get(num).get_operand2_is_integer() && isColInTable(clause.get(num).get_operand1_tableName(), clause.get(num).get_operand1_column()) )
@@ -141,7 +152,7 @@ public class SqlSelectTableExec {
                 return true;
             }else
             {
-                System.out.println("Syntex error : incompatible type of Integer comparing with String.");
+                System.out.println("Syntex error : Incompatible type of Integer comparing with String.");
                 return false;
             }
         }else if( clause.get(num).get_operand1_tableName() == null && isColInTable(clause.get(num).get_operand2_tableName(), clause.get(num).get_operand2_column()) )
@@ -151,7 +162,7 @@ public class SqlSelectTableExec {
                 return true;
             }else
             {
-                System.out.println("Syntex error : incompatible type of Integer comparing with String.");
+                System.out.println("Syntex error : Incompatible type of Integer comparing with String.");
                 return false;
             }
         }else if( clause.get(num).get_operand2_tableName() == null && isColInTable(clause.get(num).get_operand1_tableName(), clause.get(num).get_operand1_column()))
@@ -161,7 +172,7 @@ public class SqlSelectTableExec {
                 return true;
             }else
             {
-                System.out.println("Syntex error : incompatible type of Integer comparing with String.");
+                System.out.println("Syntex error : Incompatible type of Integer comparing with String.");
                 return false;
             }
         }else if( isColInTable(clause.get(num).get_operand1_tableName(), clause.get(num).get_operand1_column()) && isColInTable(clause.get(num).get_operand2_tableName(), clause.get(num).get_operand2_column()) )
@@ -174,11 +185,11 @@ public class SqlSelectTableExec {
                 return true;
             }else
             {
-                System.out.println("Syntex error : incompatible type of Integer comparing with String.");
+                System.out.println("Syntex error : Incompatible type of Integer comparing with String.");
                 return false;
             }
         }
-        System.out.println("Syntex error : column is not exit in the table(In the WHERE clause).");
+        System.out.println("Syntex error : Column is not exit in the table(In the WHERE clause).");
         return false;
     }
     
@@ -280,6 +291,23 @@ public class SqlSelectTableExec {
         return false;
     }
     
+    public void sumAgg(Map<String, Map<String, Object>> tupleHash)
+    {
+        for(int i=0;i<outputColumn.size();i++)
+        {
+            if( outputColumn.get(i).getAggregation().equals("SUM") )
+            {
+                Map<String, Object> tuple = tupleHash.get(outputColumn.get(i).getTable());
+                if( tuple != null )
+                {
+                    int colValue = Integer.parseInt((String)tuple.get(outputColumn.get(i).getColumn()));
+                    outputColumn.get(i).addSum(colValue);
+                }
+            }
+        }
+        
+    }
+    
     public boolean exec()
     {   
         if( !checkSyntex() )
@@ -293,8 +321,6 @@ public class SqlSelectTableExec {
         ArrayList<Object> tableList2;
         ArrayList<Object> outcome1 = new ArrayList<Object>();
         ArrayList<Object> outcome2 = new ArrayList<Object>();
-        int count = 0;
-        int sum = 0;
         
         if( fromTable.size() == 1 )   // Table number = 1
         {
@@ -303,20 +329,24 @@ public class SqlSelectTableExec {
             for(int i=0;i<tableList1.size();i++)
             {
                 tuple.put(fromTable.get(0), tableList1.get(i));
+                
                 if( selectFetcher.fetchBooleanFunction().equals("AND") &&
                     ( booleanExp(clause.get(0), tuple) && booleanExp(clause.get(1), tuple) ) )   //  AND
                 {
                     outcome1.add(tableList1.get(i));
-                    count++;
+                    this.count++;
+                    this.sumAgg(tuple);
                 }else if( selectFetcher.fetchBooleanFunction().equals("OR") &&
                     ( booleanExp(clause.get(0), tuple) || booleanExp(clause.get(1), tuple) ) )   // OR
                 {
                     outcome1.add(tableList1.get(i));
-                    count++;
+                    this.count++;
+                    this.sumAgg(tuple);
                 }else if( selectFetcher.fetchBooleanFunction().equals("") && booleanExp(clause.get(0), tuple) )
                 {
                     outcome1.add(tableList1.get(i));
-                    count++;
+                    this.count++;
+                    this.sumAgg(tuple);
                 }
                 tuple.remove(fromTable.get(0));
             }
@@ -341,18 +371,21 @@ public class SqlSelectTableExec {
                     {
                         outcome1.add(tableList1.get(i));
                         outcome2.add(tableList2.get(j));
-                        count++;
+                        this.count++;
+                        this.sumAgg(tuple);
                     }else if( selectFetcher.fetchBooleanFunction().equals("OR") && 
                         ( booleanExp(clause.get(0), tuple) || booleanExp(clause.get(1), tuple) ) )   // OR
                     {
                         outcome1.add(tableList1.get(i));
                         outcome2.add(tableList2.get(j));
-                        count++;
+                        this.count++;
+                        this.sumAgg(tuple);
                     }else if( selectFetcher.fetchBooleanFunction().equals("") && booleanExp(clause.get(0), tuple) )
                     {
                         outcome1.add(tableList1.get(i));
                         outcome2.add(tableList2.get(j));
-                        count++;
+                        this.count++;
+                        this.sumAgg(tuple);
                     }
                     
                     tuple.remove(fromTable.get(1));
@@ -370,21 +403,38 @@ public class SqlSelectTableExec {
     
     public void display()
     {
-        ArrayList<SelectColumn> column = selectFetcher.fetchColumns();
         
-        int rowNum = outputTable.get(column.get(0).getTable()).size();
-        for(int row=0;row<rowNum;row++)
+        if( outputColumn.get(0).getAggregation() == null )
         {
-            for(int col=0;col<column.size();col++)
-            {
-                String tableName = column.get(col).getTable();
-                String colName = column.get(col).getColumn();
+            int rowNum = outputTable.get(outputColumn.get(0).getTable()).size();
         
-                String value = ((Map<String, Object>)outputTable.get(tableName).get(row)).get(colName).toString();
+            for(int row=0;row<rowNum;row++)
+            {
+                for(int col=0;col<outputColumn.size();col++)
+                {
+                    String tableName = outputColumn.get(col).getTable();
+                    String colName = outputColumn.get(col).getColumn();
+        
+                    String value = ((Map<String, Object>)outputTable.get(tableName).get(row)).get(colName).toString();
                 
-                System.out.printf(" %s ",value);
+                    System.out.printf(" %s ",value);
+                }
+                System.out.printf("\n");
             }
-            System.out.printf("\n");
+        }else
+        {
+            for(int i=0;i<outputColumn.size();i++)
+            {
+                if( outputColumn.get(i).getAggregation().equals("SUM") )
+                {
+                    System.out.print(outputColumn.get(i).getSum());
+                    System.out.print(" ");
+                }else if( outputColumn.get(i).getAggregation().equals("COUNT") )
+                {
+                    System.out.print(count);
+                    System.out.print(" ");
+                }
+            }
         }
         
         

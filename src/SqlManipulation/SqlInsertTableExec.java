@@ -120,15 +120,15 @@ public class SqlInsertTableExec {
         
     }
     
-    /*private void prepareNoFile(){
+    private void prepareNoFile(){
         
-        hash = SqlExecutionFactory.record.getHashTable(tableName);
+        hash = (HashMap<String, Object>) SqlExecutionFactory.record.getHashTable(tableName);
         
         if(hash==null){
             hash = new HashMap<String,Object>();
         }
         
-    }*/
+    }
     
     private void prepare(){
         
@@ -147,7 +147,7 @@ public class SqlInsertTableExec {
         StringBuffer primaryKeySet = new StringBuffer();
         Iterator it;
         
-        //prepareNoFile();
+        prepareNoFile();
         
         if(!colFile.exists()){
             System.out.println("ERROR: Table Not exists!!!!");
@@ -228,7 +228,6 @@ public class SqlInsertTableExec {
                      }
                      //System.out.println(value);
                 }
-                
                 if(hash.containsKey(primaryKeySet.toString()))
                 {
                     Exception Duplicated_Key_Excepiton = new Exception("Primary Key Duplicated.");

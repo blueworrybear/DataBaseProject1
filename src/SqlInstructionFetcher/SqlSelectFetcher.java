@@ -300,11 +300,11 @@ public class SqlSelectFetcher extends SqlFetcher{
                 }
             }
             /*Check for the WHERE part is correct*/
-            patternStr = "\\w\\.";
+            patternStr = "\\w+\\.\\w+";
             pattern = Pattern.compile(patternStr);
-            matcher = pattern.matcher(this.statement.toUpperCase());
+            matcher = pattern.matcher(this.statement.toUpperCase().replaceAll("(\"|\')(.+?(\'\'\')*(\"\"\")*).?(\"|\')", " "));
             while (matcher.find()) {                
-                String table = matcher.group().replace(".", "");
+                String table = matcher.group().replaceAll(".\\w+", "");
                 System.out.println(matcher.group());
                 boolean bool = false;
                 ArrayList<String> list = this.fetchFromExpressions();
@@ -320,6 +320,26 @@ public class SqlSelectFetcher extends SqlFetcher{
                     return false;
                 }
                 
+            }
+            /*Check for where part 2*/
+            patternStr = "WHERE.+?;$?";
+            pattern = Pattern.compile(patternStr);
+            matcher = pattern.matcher(this.statement.toUpperCase());
+            if (matcher.find() && this.tableNumber > 1) {
+                System.out.println(matcher.group());
+                String set = matcher.group().replaceAll("(\"|\')(.+?(\'\'\')*(\"\"\")*).?(\"|\')", " ").replaceAll("\\d+", " ").replaceAll("^WHERE|;$", "").replaceAll("<|=|>|,", " ").replaceAll("\\s+", " ");
+                String[] list = set.split(" ");
+                for (String S : list) {
+                    if (!(S.equals(" ") || S.equals("AND") || S.equals("OR")||S.equals(""))) {
+                        patternStr = "\\w+\\.\\w+";
+                        pattern = Pattern.compile(patternStr);
+                        matcher = pattern.matcher(S);
+                        System.out.println(S);
+                        if (!matcher.find()) {
+                            return false;
+                        }
+                    }
+                }
             }
         }else{
             return false;

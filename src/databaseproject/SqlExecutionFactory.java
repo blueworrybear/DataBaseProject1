@@ -125,8 +125,13 @@ public class SqlExecutionFactory {
                 if(selectFetcher.judgeCorrect()){
                     
                     SqlSelectTableExec sqlExec = new SqlSelectTableExec(selectFetcher);
-                    sqlExec.exec();
-                    sqlExec.display();
+                    
+                    if (sqlExec.if_where_is_not_null()) {
+                        sqlExec.exec();
+                        sqlExec.display();
+                    }
+//                    sqlExec.exec();
+//                    sqlExec.display();
                     
                     
                 }else{

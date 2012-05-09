@@ -567,4 +567,72 @@ public class SqlSelectTableExec {
         
         
     }
+    
+    public boolean if_where_is_not_null(){
+        if(this.selectFetcher.fetchWhereExpressions() == null){
+            System.out.println("where clause if null.");
+            ArrayList<String> _tables = this.selectFetcher.fetchFromExpressions();
+            ArrayList<SelectColumn> columns = this.selectFetcher.fetchColumns();
+            if (_tables.size() < 2) {
+                Map<String,Object> map = SqlExecutionFactory.dataRecord.getHashTable(_tables.get(0));
+                Set entries = map.entrySet();
+                Iterator it = entries.iterator();
+                while (it.hasNext()) {                    
+                    Map.Entry<String,Object> entry = (Map.Entry<String,Object>) it.next();
+                    Map<String,Object> tuple = (Map<String,Object>) entry.getValue();
+                    for (SelectColumn column : columns) {
+                        if (column.getColumn().equals("*")) {
+                            Set _tuple_entries = tuple.entrySet();
+                            Iterator _tuple_it = _tuple_entries.iterator();
+                            while (_tuple_it.hasNext()) {                                
+                                Map.Entry<String,String> _en = (Map.Entry<String,String>) _tuple_it.next();
+                                System.out.print(_en.getValue()+"\t");
+                            }
+                        }else{
+                            System.out.print(tuple.get(column.getColumn())+"\t");
+                        }
+                    }
+                    System.out.println();
+                }
+            }else{
+                Map<String,Object> tableA = SqlExecutionFactory.dataRecord.getHashTable(_tables.get(0));
+                Map<String,Object> tableB = SqlExecutionFactory.dataRecord.getHashTable(_tables.get(1));
+                Set<Map.Entry<String,Object>> setA = tableA.entrySet();
+                Set<Map.Entry<String,Object>> setB = tableB.entrySet();
+                for (Map.Entry<String,Object> tupleA : setA) {
+                    for (Map.Entry<String,Object> tupleB : setB) {
+                        for (SelectColumn column : columns) {
+                            if (column.getColumn().equals("*")) {
+                                Map<String,Object> tuple = (Map<String,Object>) tupleA.getValue();
+                                Set _tuple_entries = tuple.entrySet();
+                                Iterator _tuple_it = _tuple_entries.iterator();
+                                while (_tuple_it.hasNext()) {                                
+                                    Map.Entry<String,String> _en = (Map.Entry<String,String>) _tuple_it.next();
+                                    System.out.print(_en.getValue()+"\t");
+                                }
+                                tuple = (Map<String,Object>) tupleB.getValue();
+                                _tuple_entries = tuple.entrySet();
+                                _tuple_it = _tuple_entries.iterator();
+                                while (_tuple_it.hasNext()) {                                
+                                    Map.Entry<String,String> _en = (Map.Entry<String,String>) _tuple_it.next();
+                                    System.out.print(_en.getValue()+"\t");
+                                }
+                            }else{
+                                if (column.getTable().equals(_tables.get(0))) {
+                                    Map<String,Object> tuple = (Map<String,Object>) tupleA.getValue();
+                                    System.out.print(tuple.get(column.getColumn()));
+                                }else{
+                                    Map<String,Object> tuple = (Map<String,Object>) tupleB.getValue();
+                                    System.out.print(tuple.get(column.getColumn()));
+                                }
+                            }
+                        }
+                        System.out.println();
+                    }
+                }
+            }
+            return false;
+        }
+        return true;
+    }
 }

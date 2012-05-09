@@ -348,8 +348,15 @@ public class SqlSelectTableExec {
         {
             if( operandType(clause.get_operand1_tableName(), clause.get_operand1_column()).equals("INT") )
             {
-                int op1 = (Integer)( (Map<String, Object>)( tuple.get(clause.get_operand1_tableName()) ) ).get(clause.get_operand1_column());
-                int op2 = (Integer)( (Map<String, Object>)( tuple.get(clause.get_operand2_tableName()) ) ).get(clause.get_operand2_column());
+            
+                //int op1 = (Integer)( (Map<String, Object>)( tuple.get(clause.get_operand1_tableName()) ) ).get(clause.get_operand1_column());
+                //int op2 = (Integer)( (Map<String, Object>)( tuple.get(clause.get_operand2_tableName()) ) ).get(clause.get_operand2_column());
+                
+                /*LJY: The type is String, using parseInt instead of casting*/
+                
+                int op1 = Integer.parseInt((String)( (Map<String, Object>)( tuple.get(clause.get_operand1_tableName()) ) ).get(clause.get_operand1_column()));
+                int op2 = Integer.parseInt((String)( (Map<String, Object>)( tuple.get(clause.get_operand2_tableName()) ) ).get(clause.get_operand2_column()));
+                
                 
                 if( (operator.equals("=") && op1==op2) || (operator.equals(">") && op1>op2) || (operator.equals("<") && op1<op2) )
                 {
@@ -570,12 +577,12 @@ public class SqlSelectTableExec {
     
     public boolean if_where_is_not_null(){
         if(this.selectFetcher.fetchWhereExpressions() == null){
-            System.out.println("where clause if null.");
+            System.out.println("where clause is null.");
             ArrayList<String> _tables = this.selectFetcher.fetchFromExpressions();
             ArrayList<SelectColumn> columns = this.selectFetcher.fetchColumns();
             if (_tables.size() < 2) {
-                Map<String,Object> map = SqlExecutionFactory.dataRecord.getHashTable(_tables.get(0));
-                Set entries = map.entrySet();
+                Map<String,Object> map = SqlExecutionFactory.dataRecord.getHashTable(_tables.get(0));         
+                Set entries = map.entrySet();//NULL Pointer Exception
                 Iterator it = entries.iterator();
                 while (it.hasNext()) {                    
                     Map.Entry<String,Object> entry = (Map.Entry<String,Object>) it.next();

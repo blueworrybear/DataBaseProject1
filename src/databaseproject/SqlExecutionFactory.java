@@ -126,10 +126,13 @@ public class SqlExecutionFactory {
                     
                     SqlSelectTableExec sqlExec = new SqlSelectTableExec(selectFetcher);
                     
-                    if (sqlExec.if_where_is_not_null()) {
+                   // if (sqlExec.if_where_is_not_null()) {
                         sqlExec.exec();
                         sqlExec.display();
-                    }
+                    //}
+                        
+                 /*LJY:Remove the if statement above make the COUNT w/o WHERE correct*/
+                        
 //                    sqlExec.exec();
 //                    sqlExec.display();
                     

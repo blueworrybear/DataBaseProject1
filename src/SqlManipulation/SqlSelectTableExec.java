@@ -501,18 +501,52 @@ public class SqlSelectTableExec {
         
         if( this.selColumn.get(0).getAggregation().equals("") )
         {
-            if( !this.selColumn.get(0).getColumn().equals("*") )
+            if( !(this.selColumn.get(0).getColumn().equals("*") && this.selColumn.get(0).getTable() == null))
             {
                 for(int row=0;row<this.count;row++)
                 {
+                    if(row == 0){
+                        for(int col=0;col<this.selColumn.size();col++){
+                            if(!this.selColumn.get(col).getColumn().equals("*")){
+                                String colName = this.selColumn.get(col).getColumn();
+                                System.out.printf("%s \t",colName);
+                            }else{
+                                String tableName = this.selColumn.get(col).getTable();
+                                ArrayList<Map<String, Object>> colInfo = SqlColNameFileParser.parseColNameFile(tableName);
+                                Iterator it = colInfo.iterator();
+                                while(it.hasNext())
+                                {
+                                    Map<String, Object> c = (Map<String, Object>)it.next();
+                                    String colName = c.get("Name").toString();
+                                    System.out.print(colName+" \t");
+                                }
+
+                            }
+                        }
+                        System.out.println();
+                        System.out.println();
+                    }
                     for(int col=0;col<this.selColumn.size();col++)
                     {
-                        String tableName = this.selColumn.get(col).getTable();
-                        String colName = this.selColumn.get(col).getColumn();
-        
-                        String value = ((Map<String, Object>)outputTable.get(tableName).get(row)).get(colName).toString();
-                
-                        System.out.printf("%s\t",value);
+                        if(!this.selColumn.get(col).getColumn().equals("*")){
+                            String tableName = this.selColumn.get(col).getTable();
+                            String colName = this.selColumn.get(col).getColumn();
+                            String value = ((Map<String, Object>)outputTable.get(tableName).get(row)).get(colName).toString();
+
+                            System.out.printf("%s |\t",value);
+                         }else{
+                            String tableName = this.selColumn.get(col).getTable();
+                            ArrayList<Map<String, Object>> colInfo = SqlColNameFileParser.parseColNameFile(tableName);
+                            Iterator it = colInfo.iterator();
+                            while(it.hasNext())
+                            {
+                                Map<String, Object> c = (Map<String, Object>)it.next();
+                                String colName = c.get("Name").toString();
+                                String value = ((Map<String, Object>)outputTable.get(tableName).get(row)).get(colName).toString();
+                                System.out.print(value+" |\t");
+                            }
+                            
+                         }
                     }
                     System.out.printf("\n");
                 }

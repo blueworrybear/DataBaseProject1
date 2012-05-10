@@ -176,7 +176,7 @@ public class SqlSelectFetcher extends SqlFetcher{
                 Pattern boolean_pattern = Pattern.compile(boolean_patternStr);
                 Matcher boolean_matcher = boolean_pattern.matcher(_matcher.group(0));
                 if (boolean_matcher.find()) {
-//                    System.out.println(boolean_matcher.group(0));
+//                    System.out.println("bool:"+boolean_matcher.group(0));
                     String key = this.table_map.get(boolean_matcher.group(0).replace(".", ""));
                     if (key != null) {
                         if (i == 0) {
@@ -192,6 +192,7 @@ public class SqlSelectFetcher extends SqlFetcher{
                         }
                     }
                     _instruction = _instruction.replace(boolean_matcher.group(0), "");
+//                    System.out.println(where.get_operand1_tableName());
                 }
                 if (this.tableNumber == 1) {
                     Iterator it = this.table_map.entrySet().iterator();
@@ -305,6 +306,9 @@ public class SqlSelectFetcher extends SqlFetcher{
 //                System.out.println("judge "+_instruction);
                 if (!_matcher.find() && this.tableNumber > 1) {
                     boolean pass = false;
+                    if(_instruction.equals("*")){
+                        pass = true;
+                    }
                     int count = 0;
                     for(Entry<String, String> entry : table_map.entrySet()) {
                         String string = entry.getKey();
@@ -329,7 +333,7 @@ public class SqlSelectFetcher extends SqlFetcher{
                         }
                     }
                     if(!pass){
-                        System.out.println("有重覆的COLUMN但卻沒有指明TABLE");
+                        System.out.println("有重覆的COLUMN卻沒有指明TABLE。");
                         return false;
                     }
                 }
@@ -399,7 +403,7 @@ public class SqlSelectFetcher extends SqlFetcher{
                             }
 
                             if(!pass){
-                                System.out.println("有重覆的COLUMN但卻沒有指明TABLE");
+                                System.out.println("有重覆的COLUMN卻沒有指明TABLE。");
                                 return false;
                             }
                         }

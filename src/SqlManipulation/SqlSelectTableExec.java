@@ -512,7 +512,7 @@ public class SqlSelectTableExec {
         
                         String value = ((Map<String, Object>)outputTable.get(tableName).get(row)).get(colName).toString();
                 
-                        System.out.printf(" %s ",value);
+                        System.out.printf("%s\t",value);
                     }
                     System.out.printf("\n");
                 }
@@ -544,7 +544,7 @@ public class SqlSelectTableExec {
                         {
                             String value = ((Map<String, Object>)outputTable.get(this.fromTable.get(i)).get(row)).get(colName.get(col)).toString();
                             
-                            System.out.print(value+"  ");
+                            System.out.print(value+"\t");
                         }
                         System.out.print("-----");
                     }
@@ -557,10 +557,10 @@ public class SqlSelectTableExec {
             {
                 if( this.selColumn.get(i).getAggregation().equals("SUM") )
                 {
-                    System.out.print(this.selColumn.get(i).getSum()+" ");
+                    System.out.print(this.selColumn.get(i).getSum()+"\t");
                 }else if( this.selColumn.get(i).getAggregation().equals("COUNT") )
                 {
-                    System.out.print(this.count+" ");
+                    System.out.print(this.count+"\t");
                 }
             }
         }

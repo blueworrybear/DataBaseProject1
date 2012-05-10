@@ -329,6 +329,7 @@ public class SqlSelectFetcher extends SqlFetcher{
                         }
                     }
                     if(!pass){
+                        System.out.println("有重覆的COLUMN但卻沒有指明TABLE");
                         return false;
                     }
                 }
@@ -398,6 +399,7 @@ public class SqlSelectFetcher extends SqlFetcher{
                             }
 
                             if(!pass){
+                                System.out.println("有重覆的COLUMN但卻沒有指明TABLE");
                                 return false;
                             }
                         }

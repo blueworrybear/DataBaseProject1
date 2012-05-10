@@ -3,6 +3,7 @@
  * and open the template in the editor.
  */
 package SqlInstructionFetcher;
+import SqlManipulation.SqlSelectTableExec;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
@@ -38,6 +39,7 @@ public class SqlSelectFetcher extends SqlFetcher{
                 String _patternStr = ",?\\w+(\\sAS\\s\\w+)?\\s?";
                 Pattern _pattern = Pattern.compile(_patternStr);
                 Matcher _matcher = _pattern.matcher(matcher.group(0).toUpperCase().replace("FROM", "").replace(", ", ","));
+                int count = 0;
                 while (_matcher.find()) {   
                     String key = new String();
                     String value = new String();
@@ -51,6 +53,8 @@ public class SqlSelectFetcher extends SqlFetcher{
                     __patternStr = "AS\\s?\\w+";
                     __pattern = Pattern.compile(__patternStr);
                     __matcher = __pattern.matcher(_matcher.group(0).replace(",", ""));
+                    value = "index"+count;
+                    count ++;
                     if (__matcher.find()) {
                         value = __matcher.group(0).replace("AS", "").replace(" ", "");
                     }
@@ -79,7 +83,7 @@ public class SqlSelectFetcher extends SqlFetcher{
         }
         
         
-        patternStr = "((COUNT|SUM)\\s?\\(.+?\\))|((\\w+\\.)?\\w+)|(\\*)";
+        patternStr = "((COUNT|SUM)\\s?\\(.+?\\))|((\\w+\\.)?[A-Z*0-9]+)|(\\*)";
         pattern = Pattern.compile(patternStr);
         matcher = pattern.matcher(intruciton.replace("SELECT", ""));
         while (matcher.find()) {       
@@ -117,7 +121,7 @@ public class SqlSelectFetcher extends SqlFetcher{
             }   
             
             select.setColumn(_instruction);
-            System.out.println("Table: "+select.getTable()+"  Column: "+select.getColumn()+"  AGG:"+select.getAggregation());
+//            System.out.println("Table: "+select.getTable()+"  Column: "+select.getColumn()+"  AGG:"+select.getAggregation());
             list.add(select);
 //            System.out.println();
         }
@@ -152,14 +156,14 @@ public class SqlSelectFetcher extends SqlFetcher{
             return null;
         }
         
-        patternStr = "\\s?((\\w+\\.\\w+)|((\'|\")(.+?(\'\'\')*(\"\"\")*)+?(\'|\")|\\w+)|\\d+)\\s?(=|>|<|<=|>=)\\s?((\\w+\\.\\w+)|((\'|\")(.+?(\'\'\')*(\"\"\")*)+?(\'|\"))|\\d+|\\w+)\\s?,?";
+        patternStr = "\\s?((\\w+\\.\\w+)|((\'|\")(.+?(\\\\\')*(\\\\\")*)+?(\'|\")|\\w+)|\\d+)\\s?(=|>|<|<=|>=)\\s?((\\w+\\.\\w+)|((\'|\")(.+?(\\\\\')*(\\\\\")*)+?(\'|\"))|\\d+|\\w+)\\s?,?";
         pattern = Pattern.compile(patternStr);
         matcher = pattern.matcher(instruciton);
         
         while (matcher.find()) { 
             
             SelectWhere where = new SelectWhere();
-            String _patternStr = "((\\w+\\.\\w+)|((\'|\")(.+?(\'\'\')*(\"\"\")*)+?(\'|\")|\\w+)|\\d+)";
+            String _patternStr = "((\\w+\\.\\w+)|((\'|\")(.+?(\\\\\')*(\\\\\")*)+?(\'|\")|\\w+)|\\d+)";
             Pattern _pattern = Pattern.compile(_patternStr);
             Matcher _matcher = _pattern.matcher(matcher.group(0));
             int i = 0;
@@ -181,7 +185,11 @@ public class SqlSelectFetcher extends SqlFetcher{
                             where.set_operand2_tableName(key);
                         }
                     }else{
-                        where.set_operand1_tableName(boolean_matcher.group(0).replace(".", ""));
+                        if(i == 0){
+                            where.set_operand1_tableName(boolean_matcher.group(0).replace(".", ""));
+                        }else{
+                            where.set_operand2_tableName(boolean_matcher.group(0).replace(".", ""));
+                        }
                     }
                     _instruction = _instruction.replace(boolean_matcher.group(0), "");
                 }
@@ -256,7 +264,7 @@ public class SqlSelectFetcher extends SqlFetcher{
         String patternStr = "SELECT";
         Pattern pattern = Pattern.compile(patternStr);
         Matcher matcher = pattern.matcher(this.statement);
-        System.out.println(this.statement);
+//        System.out.println(this.statement);
         
         if (matcher.find()) {
             String intruciton;
@@ -272,13 +280,13 @@ public class SqlSelectFetcher extends SqlFetcher{
             }
 
             /*Check for the SELECT part is correct*/
-            patternStr = "((COUNT|SUM)\\s?\\(.+?\\))|((\\w+\\.)?\\w+)";
+            patternStr = "((COUNT|SUM)\\s?\\(.+?\\))|((\\w+\\.)?[A-Z*0-9]+)";
             pattern = Pattern.compile(patternStr);
             matcher = pattern.matcher(intruciton.replace("SELECT", ""));
             while (matcher.find()) {       
                 SelectColumn select = new SelectColumn();
                 
-                System.out.println(matcher.group(0));
+//                System.out.println(matcher.group(0));
                 
                 String table;
                 String _instruction = matcher.group(0).replace(" ", "").replace(",", "");
@@ -296,19 +304,47 @@ public class SqlSelectFetcher extends SqlFetcher{
                 _matcher = _pattern.matcher(_instruction);
 //                System.out.println("judge "+_instruction);
                 if (!_matcher.find() && this.tableNumber > 1) {
-                    return false;
+                    boolean pass = false;
+                    int count = 0;
+                    for(Entry<String, String> entry : table_map.entrySet()) {
+                        String string = entry.getKey();
+                        String string1 = entry.getValue();
+                        SqlSelectTableExec exe = new SqlSelectTableExec(this);
+                        if (exe.isColInTable(string1, _instruction)) {
+                            count +=1;
+                        
+                        }
+                        
+                    }
+                    if(count < 2){
+                        for (Entry<String, String> entry : table_map.entrySet()) {
+                            String string = entry.getKey();
+                            String string1 = entry.getValue();
+                            SqlSelectTableExec exe = new SqlSelectTableExec(this);
+                            if (exe.isColInTable(string1, _instruction)) {
+                                this.statement = this.statement.toUpperCase().replaceAll("(\\w+\\.)?"+_instruction, string1+"."+_instruction);
+                                pass = true;
+                            }
+
+                        }
+                    }
+                    if(!pass){
+                        return false;
+                    }
                 }
             }
+//            System.out.println("stat:"+this.statement);
             /*Check for the WHERE part is correct*/
             patternStr = "\\w+\\.\\w+";
             pattern = Pattern.compile(patternStr);
-            matcher = pattern.matcher(this.statement.toUpperCase().replaceAll("(\"|\')(.+?(\'\'\')*(\"\"\")*).?(\"|\')", " "));
+            matcher = pattern.matcher(this.statement.toUpperCase().replaceAll("(\"|\')(.+?(\\\\\')*(\\\\\")*).?(\"|\')", " "));
             while (matcher.find()) {                
-                String table = matcher.group().replaceAll(".\\w+", "");
-                System.out.println(matcher.group());
+                String table = matcher.group().replaceAll("\\.\\w+", "");
+//                System.out.println(matcher.group());
                 boolean bool = false;
                 ArrayList<String> list = this.fetchFromExpressions();
                 for (String str : list) {
+//                    System.out.println(str+":"+table);
                     if (str.equals(table)) {
                         bool = true;
                     }
@@ -326,25 +362,60 @@ public class SqlSelectFetcher extends SqlFetcher{
             pattern = Pattern.compile(patternStr);
             matcher = pattern.matcher(this.statement.toUpperCase());
             if (matcher.find() && this.tableNumber > 1) {
-                System.out.println(matcher.group());
-                String set = matcher.group().replaceAll("(\"|\')(.+?(\'\'\')*(\"\"\")*).?(\"|\')", " ").replaceAll("\\d+", " ").replaceAll("^WHERE|;$", "").replaceAll("<|=|>|,", " ").replaceAll("\\s+", " ");
+//                System.out.println(matcher.group());
+                String set = matcher.group().replaceAll("(\"|\')(.+?(\\\\\')*(\\\\\")*).?(\"|\')", " ").replaceAll("\\d+", " ").replaceAll("^WHERE|;$", "").replaceAll("<|=|>|,", " ").replaceAll("\\s+", " ");
                 String[] list = set.split(" ");
                 for (String S : list) {
                     if (!(S.equals(" ") || S.equals("AND") || S.equals("OR")||S.equals(""))) {
                         patternStr = "\\w+\\.\\w+";
                         pattern = Pattern.compile(patternStr);
                         matcher = pattern.matcher(S);
-                        System.out.println(S);
+//                        System.out.println(S);
                         if (!matcher.find()) {
-                            return false;
+                            boolean pass = false;
+                            int count = 0;
+                            for(Entry<String, String> entry : table_map.entrySet()) {
+                                String string = entry.getKey();
+                                String string1 = entry.getValue();
+                                SqlSelectTableExec exe = new SqlSelectTableExec(this);
+                                if (exe.isColInTable(string1, S)) {
+                                    count +=1;
+
+                                }
+
+                            }
+                            if(count < 2){
+                                for (Entry<String, String> entry : table_map.entrySet()) {
+                                    String string = entry.getKey();
+                                    String string1 = entry.getValue();
+                                    SqlSelectTableExec exe = new SqlSelectTableExec(this);
+                                    if (exe.isColInTable(string1, S)) {
+                                        this.statement = this.statement.toUpperCase().replaceAll("(\\w+\\.)?"+S, string1+"."+S);
+                                        pass = true;
+                                    }
+
+                                }
+                            }
+
+                            if(!pass){
+                                return false;
+                            }
                         }
                     }
                 }
+//                System.out.println(this.statement);
             }
         }else{
             return false;
         }
         
+        /*bonus check*/
+        patternStr = "((<>)|(><))";
+        pattern = Pattern.compile(patternStr);
+        matcher = pattern.matcher(this.statement);
+        if(matcher.find()){
+            return false;
+        }
         return true;
     }
     

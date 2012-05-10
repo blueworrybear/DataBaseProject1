@@ -112,7 +112,7 @@ public class SqlExecutionFactory {
                     
                     SqlInsertTableExec sqlExec = new SqlInsertTableExec(insertFetcher);
                     sqlExec.exec();
-//                    sqlExec.display();
+                    sqlExec.display();
                     
                 }else{
                     throw invalidException;
@@ -126,10 +126,10 @@ public class SqlExecutionFactory {
                     
                     SqlSelectTableExec sqlExec = new SqlSelectTableExec(selectFetcher);
                     
-                    if (sqlExec.if_where_is_not_null()) {
+//                    if (sqlExec.if_where_is_not_null()) {
                         sqlExec.exec();
                         sqlExec.display();
-                    }
+//                    }
 //                    sqlExec.exec();
 //                    sqlExec.display();
                     

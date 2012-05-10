@@ -348,8 +348,8 @@ public class SqlSelectTableExec {
         {
             if( operandType(clause.get_operand1_tableName(), clause.get_operand1_column()).equals("INT") )
             {
-                int op1 = (Integer)( (Map<String, Object>)( tuple.get(clause.get_operand1_tableName()) ) ).get(clause.get_operand1_column());
-                int op2 = (Integer)( (Map<String, Object>)( tuple.get(clause.get_operand2_tableName()) ) ).get(clause.get_operand2_column());
+                int op1 = Integer.parseInt((String)( (Map<String, Object>)( tuple.get(clause.get_operand1_tableName()) ) ).get(clause.get_operand1_column()));
+                int op2 = Integer.parseInt((String)( (Map<String, Object>)( tuple.get(clause.get_operand2_tableName()) ) ).get(clause.get_operand2_column()));
                 
                 if( (operator.equals("=") && op1==op2) || (operator.equals(">") && op1>op2) || (operator.equals("<") && op1<op2) )
                 {

@@ -420,6 +420,7 @@ public class SqlSelectFetcher extends SqlFetcher{
         pattern = Pattern.compile(patternStr);
         matcher = pattern.matcher(this.statement);
         if(matcher.find()){
+            System.out.println("不合法運算子（<>|><）");
             return false;
         }
         return true;

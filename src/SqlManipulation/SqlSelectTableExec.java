@@ -93,9 +93,9 @@ public class SqlSelectTableExec {
             System.out.println("Syntex error : Table \""+tableName+"\" does not exist after From clause.");
             return false;
         }
-        if( !this.isColInTable(tableName, column))
+        if( !this.isColInTable(tableName, column) && !column.equals("*") )
         {
-            System.out.println("Syntex error : Column \""+tableName+"\" does not exist in the table \""+column+"\".");
+            System.out.println("Syntex error : Column \""+column+"\" does not exist in the table \""+tableName+"\".");
             return false;
         }
         return true;
@@ -116,7 +116,7 @@ public class SqlSelectTableExec {
         {
             SelectColumn col = (SelectColumn)it.next();
             
-            if( col.getAggregation()== null )
+            if( col.getAggregation().equals("") )
             {
                 if( !this.checkColTable(col.getTable(), col.getColumn()) )
                 {
@@ -157,7 +157,6 @@ public class SqlSelectTableExec {
                 aggCount++;
             }
         }
-        
         if( aggCount!=0 && aggCount != this.selColumn.size() )
         {
             System.out.println("Logic error : Set cannot be combined with aggregation function.");
@@ -227,6 +226,11 @@ public class SqlSelectTableExec {
                 System.out.println("Syntex error : Incompatible type of Integer comparing with String.");
                 return false;
             }
+            if( this.whereClause.get(num).get_operator().equals("<") || this.whereClause.get(num).get_operator().equals(">"))
+            {
+                System.out.println("Syntex error : String cannot compare with String.");
+                return false;
+            }
         }else if( this.whereClause.get(num).get_operand2_tableName() == null )
         {
             if( !this.checkColTable(this.whereClause.get(num).get_operand1_tableName(), this.whereClause.get(num).get_operand1_column()) )
@@ -236,6 +240,11 @@ public class SqlSelectTableExec {
             if( this.operandType(this.whereClause.get(num).get_operand1_tableName(), this.whereClause.get(num).get_operand1_column()).equals("INT") )
             {
                 System.out.println("Syntex error : Incompatible type of Integer comparing with String.");
+                return false;
+            }
+            if( this.whereClause.get(num).get_operator().equals("<") || this.whereClause.get(num).get_operator().equals(">") )
+            {
+                System.out.println("Syntex error : String cannot compare with String.");
                 return false;
             }
         }else
@@ -253,6 +262,13 @@ public class SqlSelectTableExec {
                 || (     !this.operandType(this.whereClause.get(num).get_operand1_tableName(), this.whereClause.get(num).get_operand1_column()).equals("INT")
                       && !this.operandType(this.whereClause.get(num).get_operand2_tableName(), this.whereClause.get(num).get_operand2_column()).equals("INT")  )   )
             {
+                if(      !this.operandType(this.whereClause.get(num).get_operand1_tableName(), this.whereClause.get(num).get_operand1_column()).equals("INT")
+                      && !this.operandType(this.whereClause.get(num).get_operand2_tableName(), this.whereClause.get(num).get_operand2_column()).equals("INT")  
+                      && (  this.whereClause.get(num).get_operator().equals("<") || this.whereClause.get(num).get_operator().equals(">")  )  )
+                {
+                    System.out.println("Syntex error : String cannot compare with String.");
+                    return false;
+                }
                 return true;
             }else
             {
@@ -315,7 +331,7 @@ public class SqlSelectTableExec {
             int op1 = Integer.parseInt(clause.get_operand1_column());
             int op2 = Integer.parseInt((String)( (Map<String, Object>)( tuple.get(clause.get_operand2_tableName()) ) ).get(clause.get_operand2_column()));
             
-            if( (operator.equals("=") && op1==op2) || (operator.equals(">") && op1>op2) || (operator.equals("<") && op1<op2) )
+            if( (operator.equals("=") && op1==op2) || (operator.equals(">") && op1>op2) || (operator.equals("<") && op1<op2) || (operator.equals("<>") && op1!=op2) )
             {
                 return true;
             }
@@ -324,7 +340,7 @@ public class SqlSelectTableExec {
         {
             int op1 = Integer.parseInt((String)( (Map<String, Object>)( tuple.get(clause.get_operand1_tableName()) ) ).get(clause.get_operand1_column()));
             int op2 = Integer.parseInt(clause.get_operand2_column());
-            if( (operator.equals("=") && op1==op2) || (operator.equals(">") && op1>op2) || (operator.equals("<") && op1<op2) )
+            if( (operator.equals("=") && op1==op2) || (operator.equals(">") && op1>op2) || (operator.equals("<") && op1<op2) || (operator.equals("<>") && op1!=op2) )
             {
                 return true;
             }
@@ -332,7 +348,7 @@ public class SqlSelectTableExec {
         {
             String op1 = clause.get_operand1_column();
             String op2 = ( (Map<String, Object>)( tuple.get(clause.get_operand2_tableName()) ) ).get(clause.get_operand2_column()).toString();
-            if( op1.equals(op2) )
+            if( (operator.equals("=") && op1.equals(op2)) || (operator.equals("<>") && !op1.equals(op2)) )
             {
                 return true;
             }
@@ -340,7 +356,7 @@ public class SqlSelectTableExec {
         {
             String op1 = ( (Map<String, Object>)( tuple.get(clause.get_operand1_tableName()) ) ).get(clause.get_operand1_column()).toString();
             String op2 = clause.get_operand2_column();
-            if( op1.equals(op2) )
+            if( (operator.equals("=") && op1.equals(op2)) || (operator.equals("<>") && !op1.equals(op2)) )
             {
                 return true;
             }
@@ -351,7 +367,7 @@ public class SqlSelectTableExec {
                 int op1 = Integer.parseInt((String)( (Map<String, Object>)( tuple.get(clause.get_operand1_tableName()) ) ).get(clause.get_operand1_column()));
                 int op2 = Integer.parseInt((String)( (Map<String, Object>)( tuple.get(clause.get_operand2_tableName()) ) ).get(clause.get_operand2_column()));
                 
-                if( (operator.equals("=") && op1==op2) || (operator.equals(">") && op1>op2) || (operator.equals("<") && op1<op2) )
+                if( (operator.equals("=") && op1==op2) || (operator.equals(">") && op1>op2) || (operator.equals("<") && op1<op2) || (operator.equals("<>") && op1!=op2) )
                 {
                     return true;
                 }
@@ -360,7 +376,7 @@ public class SqlSelectTableExec {
                 String op1 = ( (Map<String, Object>)( tuple.get(clause.get_operand1_tableName()) ) ).get(clause.get_operand1_column()).toString();
                 String op2 = ( (Map<String, Object>)( tuple.get(clause.get_operand2_tableName()) ) ).get(clause.get_operand2_column()).toString();
                 
-                if( op1.equals(op2) )
+                if( (operator.equals("=") && op1.equals(op2)) || (operator.equals("<>") && !op1.equals(op2)) )
                 {
                     return true;
                 }

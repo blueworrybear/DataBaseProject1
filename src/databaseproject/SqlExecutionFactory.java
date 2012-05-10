@@ -127,8 +127,11 @@ public class SqlExecutionFactory {
                     SqlSelectTableExec sqlExec = new SqlSelectTableExec(selectFetcher);
                     
 //                    if (sqlExec.if_where_is_not_null()) {
-                        sqlExec.exec();
-                        sqlExec.display();
+                        if(sqlExec.exec()){;
+                            sqlExec.display();
+                        }else{
+//                            System.out.println("未知的嚴重錯誤。");
+                        }
 //                    }
 //                    sqlExec.exec();
 //                    sqlExec.display();

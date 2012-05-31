@@ -133,14 +133,14 @@ public class SqlBTreeData
                         {
                             if( tree.less(node.getEntry(i).getKey(), Integer.parseInt((String)key)) )
                             {
-                                answerSet.add(node.getEntry(i).getPrimaryKey());
+                                answerSet.addAll(node.getEntry(i).getPrimaryKey());
                             }
                         }
                     }else
                     {
                         for(int i=0;i<node.numberOfKeys();i++)
                         {
-                            answerSet.add(node.getEntry(i).getPrimaryKey());
+                            answerSet.addAll(node.getEntry(i).getPrimaryKey());
                         }
                     }
                     node = node.getFront();
@@ -156,14 +156,14 @@ public class SqlBTreeData
                         {
                             if( tree.less(node.getEntry(i).getKey(), Integer.parseInt((String)key)) || tree.equal(node.getEntry(i).getKey(), Integer.parseInt((String)key)))
                             {
-                                answerSet.add(node.getEntry(i).getPrimaryKey());
+                                answerSet.addAll(node.getEntry(i).getPrimaryKey());
                             }
                         }
                     }else
                     {
                         for(int i=0;i<node.numberOfKeys();i++)
                         {
-                            answerSet.add(node.getEntry(i).getPrimaryKey());
+                            answerSet.addAll(node.getEntry(i).getPrimaryKey());
                         }
                     }
                     node = node.getFront();
@@ -179,14 +179,14 @@ public class SqlBTreeData
                         {
                             if( tree.less(Integer.parseInt((String)key), node.getEntry(i).getKey()) )
                             {
-                                answerSet.add(node.getEntry(i).getPrimaryKey());
+                                answerSet.addAll(node.getEntry(i).getPrimaryKey());
                             }
                         }
                     }else
                     {
                         for(int i=0;i<node.numberOfKeys();i++)
                         {
-                            answerSet.add(node.getEntry(i).getPrimaryKey());
+                            answerSet.addAll(node.getEntry(i).getPrimaryKey());
                         }
                     }
                     node = node.getNext();
@@ -202,14 +202,14 @@ public class SqlBTreeData
                         {
                             if( tree.less(Integer.parseInt((String)key), node.getEntry(i).getKey()) || tree.equal(Integer.parseInt((String)key), node.getEntry(i).getKey()) )
                             {
-                                answerSet.add(node.getEntry(i).getPrimaryKey());
+                                answerSet.addAll(node.getEntry(i).getPrimaryKey());
                             }
                         }
                     }else
                     {
                         for(int i=0;i<node.numberOfKeys();i++)
                         {
-                            answerSet.add(node.getEntry(i).getPrimaryKey());
+                            answerSet.addAll(node.getEntry(i).getPrimaryKey());
                         }
                     }
                     node = node.getNext();
@@ -221,7 +221,7 @@ public class SqlBTreeData
                 {
                     if( tree.equal(node.getEntry(i).getKey(), Integer.parseInt((String)key)) )
                     {
-                        answerSet.add(node.getEntry(i).getPrimaryKey());
+                        answerSet.addAll(node.getEntry(i).getPrimaryKey());
                     }
                 }
             }
@@ -243,14 +243,14 @@ public class SqlBTreeData
                         {
                             if( tree.less(node.getEntry(i).getKey(), key.toString()) )
                             {
-                                answerSet.add(node.getEntry(i).getPrimaryKey());
+                                answerSet.addAll(node.getEntry(i).getPrimaryKey());
                             }
                         }
                     }else
                     {
                         for(int i=0;i<node.numberOfKeys();i++)
                         {
-                            answerSet.add(node.getEntry(i).getPrimaryKey());
+                            answerSet.addAll(node.getEntry(i).getPrimaryKey());
                         }
                     }
                     node = node.getFront();
@@ -266,14 +266,14 @@ public class SqlBTreeData
                         {
                             if( tree.less(node.getEntry(i).getKey(), key.toString()) || tree.equal(node.getEntry(i).getKey(), key.toString()))
                             {
-                                answerSet.add(node.getEntry(i).getPrimaryKey());
+                                answerSet.addAll(node.getEntry(i).getPrimaryKey());
                             }
                         }
                     }else
                     {
                         for(int i=0;i<node.numberOfKeys();i++)
                         {
-                            answerSet.add(node.getEntry(i).getPrimaryKey());
+                            answerSet.addAll(node.getEntry(i).getPrimaryKey());
                         }
                     }
                     node = node.getFront();
@@ -289,14 +289,14 @@ public class SqlBTreeData
                         {
                             if( tree.less(key.toString(), node.getEntry(i).getKey()) )
                             {
-                                answerSet.add(node.getEntry(i).getPrimaryKey());
+                                answerSet.addAll(node.getEntry(i).getPrimaryKey());
                             }
                         }
                     }else
                     {
                         for(int i=0;i<node.numberOfKeys();i++)
                         {
-                            answerSet.add(node.getEntry(i).getPrimaryKey());
+                            answerSet.addAll(node.getEntry(i).getPrimaryKey());
                         }
                     }
                     node = node.getNext();
@@ -312,14 +312,14 @@ public class SqlBTreeData
                         {
                             if( tree.less(key.toString(), node.getEntry(i).getKey()) || tree.equal(key.toString(), node.getEntry(i).getKey()) )
                             {
-                                answerSet.add(node.getEntry(i).getPrimaryKey());
+                                answerSet.addAll(node.getEntry(i).getPrimaryKey());
                             }
                         }
                     }else
                     {
                         for(int i=0;i<node.numberOfKeys();i++)
                         {
-                            answerSet.add(node.getEntry(i).getPrimaryKey());
+                            answerSet.addAll(node.getEntry(i).getPrimaryKey());
                         }
                     }
                     node = node.getNext();
@@ -331,7 +331,7 @@ public class SqlBTreeData
                 {
                     if( tree.equal(node.getEntry(i).getKey(), key.toString()) )
                     {
-                        answerSet.add(node.getEntry(i).getPrimaryKey());
+                        answerSet.addAll(node.getEntry(i).getPrimaryKey());
                     }
                 }
             }

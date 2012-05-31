@@ -100,7 +100,7 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
             {
                 if( equal(this.keys[i].key, entry.key) )
                 {
-                    this.keys[i].primaryKeySet.add(entry.primaryKeySet.get(0));
+                    this.keys[i].primaryKeySet.addAll(entry.primaryKeySet);
                     return;
                 }
             }
@@ -249,6 +249,7 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
             newRoot.addChild(left, 0);
             newRoot.addChild(right, 1);
             root = newRoot;
+            
         }else
         {
             node.parent.removeChild(node.childIndex);

@@ -21,11 +21,13 @@ import java.util.logging.Logger;
  */
 public class SqlColNameFileParser {
     
+    
     public SqlColNameFileParser(){
         
         //Empty Constructor
         
     }
+    
     
     public static ArrayList<Map<String,Object>> parseColNameFile(String tableName){
         

@@ -1,5 +1,0 @@
-STUDENTID:INT:0:true,
-NAME:VARCHAR:15:false,
-AGE:INT:0:false,
-CODE:VARCHAR:5:false,
-CREDITS:INT:0:false,

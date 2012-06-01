@@ -7,9 +7,7 @@ package databaseproject;
 import SqlContentFileManipulation.FileScanner;
 import SqlInstructionFetcher.SqlCreateTableFetcher;
 import SqlInstructionFetcher.SqlInsertIntoFetcher;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -21,6 +19,7 @@ public class queryDataRecord {
     //private HashMap<String,SqlCreateTableFetcher> sqlCreateMap;
     //private HashMap<String,SqlInsertIntoFetcher> sqlInsertMap;
     private HashMap<String, Map<String,Object>> sqlContentHashMap;
+    public static ArrayList<String> tableNames;
     
     public queryDataRecord(){
         
@@ -28,6 +27,7 @@ public class queryDataRecord {
         //sqlInsertMap = new HashMap<String,SqlInsertIntoFetcher>();
         sqlContentHashMap = new HashMap<String, Map<String,Object>>();
         FileScanner catchFile = new FileScanner();
+        tableNames =catchFile.getTableNames();
         
         Iterator it = catchFile.getTableNames().iterator();
         while(it.hasNext())
@@ -44,6 +44,7 @@ public class queryDataRecord {
         
     }*/
     public void addSqlContentHashMap(String tableName, Map<String,Object> map){
+        System.out.println(tableName+" put into record!");
         sqlContentHashMap.put(tableName, map);
     }
     
@@ -52,6 +53,7 @@ public class queryDataRecord {
         return sqlContentHashMap.get(tableName);
         
     }
+    
     
     
 }

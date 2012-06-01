@@ -39,10 +39,12 @@ public class DataBaseProject1 {
         SqlDataReader reader = new SqlFileDataReader("src/Resource/data.in");
         SqlExecutionFactory factory = new SqlExecutionFactory();
         
-        String table = "BOOK";
+        
+           //   This is a test program
+                    String table = "BOOK";
                     String column = "TITLE";
                     SqlBTreeData Btree = new SqlBTreeData(table, column);
-                    ArrayList<Object> result = Btree.get( "=", "BIBLE");
+                    ArrayList<Object> result = Btree.get( "<=", "ROMEO AND JULIET");
                     Iterator it = result.iterator();
                     while(it.hasNext())
                     {
@@ -50,6 +52,9 @@ public class DataBaseProject1 {
                         int ID = Integer.parseInt((String)obj);
                         System.out.printf("ID = %d\n",ID);
                     }
+           //   End test program
+                    
+                    
         /*reader.openReader();
         String instruc = new String();
         while(!(instruc = reader.readNextInstruc()).equals("")){

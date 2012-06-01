@@ -10,6 +10,7 @@ import SqlContentFileManipulation.FileScanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import SqlInstructionFetcher.SqlSelectFetcher;
+import SqlManipulation.SqlSelectTableExec_BTree;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -28,7 +29,10 @@ public class DataBaseProject1 {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        
+        SqlSelectFetcher fetch = new SqlSelectFetcher("SSELECT BOOKID FROM BOOK WHERE TITLE = 'BIBLE' AND AUTHORID < 20");
+        SqlSelectTableExec_BTree bt = new SqlSelectTableExec_BTree(fetch);
+        bt.exec();
+        System.out.println("fin test");
         /*
          * NOTICE:
          * The end of the reading SQL file is that 

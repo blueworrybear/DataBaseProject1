@@ -130,6 +130,10 @@ public class SqlSelectFetcher extends SqlFetcher{
         return list;
     }
     
+    /**
+     * This function return and or.
+     * @return 
+     */
     public String fetchBooleanFunction(){
         this.fetchTableMapping();
         String patternStr = "\\s(AND|OR)\\s";
@@ -248,6 +252,10 @@ public class SqlSelectFetcher extends SqlFetcher{
         return list;
     }
     
+    /**
+     * return the tables that reference by select. 
+     * @return 
+     */
      public ArrayList<String> fetchFromExpressions(){
         //  need to be implement
          ArrayList<String> result = new ArrayList<String>();

@@ -258,12 +258,10 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
                 node.parent.getEntry(location+1).left.front = node.parent.getEntry(location).right;
             }
         }
-        
-        
-        
-        
-        
+            
     }
+    
+    
     public Node get(keyType key)
     {
         Node node = this.root;
@@ -304,6 +302,41 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
         }
         return null;
     }
+    
+    public Node getRange(keyType key)
+    {
+        Node node = this.root;
+        while(node != null)
+        {
+            if(node.hasChild == false)
+            {
+                return node;
+            }else
+            {
+                int i;
+                for(i=0;i<node.numberOfKeys();i++)
+                {
+                    if( this.less(key, node.getEntry(i).key) )
+                    {
+                        node = node.getEntry(i).getLeftChild();
+                        break;
+                    }else if( this.equal(node.getEntry(i).key, key) )
+                    {
+                        node = node.getEntry(i).getRightChild();
+                        break;
+                    }
+                }
+                if(i == node.numberOfKeys() )
+                {
+                    node = node.getEntry(i-1).getRightChild();
+                }
+            }
+            
+        }
+        return null;
+    }
+    
+    
     public boolean less(Comparable key1, Comparable key2)
     {
         return key1.compareTo(key2) < 0;

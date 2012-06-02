@@ -42,15 +42,20 @@ public class DataBaseProject1 {
         
            //   This is a test program
                     String table = "BOOK";
-                    String column = "TITLE";
+                    String column = "PAGES";
                     SqlBTreeData Btree = new SqlBTreeData(table, column);
-                    ArrayList<Object> result = Btree.get( "<=", "ROMEO AND JULIET");
+                    ArrayList<Object> result = Btree.get( ">", 500);
                     Iterator it = result.iterator();
                     while(it.hasNext())
                     {
                         Object obj = it.next();
-                        int ID = Integer.parseInt((String)obj);
-                        System.out.printf("ID = %d\n",ID);
+                        if(obj instanceof Integer)
+                        {
+                            System.out.printf("ID = %d\n",((Integer)obj).intValue());
+                        }else
+                        {
+                            System.out.printf("ID = %s\n",obj.toString());
+                        }
                     }
            //   End test program
                     

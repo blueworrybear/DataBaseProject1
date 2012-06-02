@@ -222,6 +222,7 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
         {
             right.addEntry(node.getEntry(i));
         }
+        right.getEntry(0).setLeftChild(null);
         
         node.getEntry(medianIndex).setLeftChild(left);
         node.getEntry(medianIndex).setRightChild(right);
@@ -256,6 +257,11 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
                 node.parent.getEntry(location+1).setLeftChild(right);
                 node.parent.getEntry(location).right.next = node.parent.getEntry(location+1).left;
                 node.parent.getEntry(location+1).left.front = node.parent.getEntry(location).right;
+            }
+            
+            if(node.parent.numberOfKeys() > this.maxKeySize)
+            {
+                this.split(node.parent);
             }
         }
             

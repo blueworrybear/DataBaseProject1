@@ -5,6 +5,7 @@
 package DataStructure;
 
 import DataStructure.BPlusTree.Node;
+import SqlManipulation.SqlColNameFileParser;
 import databaseproject.SqlExecutionFactory;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -18,11 +19,9 @@ public class SqlBTreeData
 
     BPlusTree tree;
     String keyType;
-    String primaryType;
     
     public SqlBTreeData(String tableName, String columnName)
     {
-        this.setType(tableName, columnName);
         this.createBPlusTree(tableName, columnName);
     }
     
@@ -30,11 +29,13 @@ public class SqlBTreeData
     {
         Object objKey, objValue;
         
+        Map map = SqlColNameFileParser.parseColType(tableName);
         Iterator itr = SqlExecutionFactory.dataRecord.getHashTable(tableName).entrySet().iterator();
         
         
-        if(keyType.equals("Integer") && primaryType.equals("Integer"))
+        if(map.get(columnName).equals("Integer") && map.get("primary").equals("Integer"))
         {
+            keyType = "Integer";
             this.tree = new BPlusTree<Integer, Integer>();
             
             while(itr.hasNext())
@@ -46,8 +47,9 @@ public class SqlBTreeData
                 this.tree.put(Integer.parseInt((String)objKey), Integer.parseInt((String)objValue));
             }
             
-        }else if(keyType.equals("Integer") && primaryType.equals("String"))
+        }else if(map.get(columnName).equals("Integer") && map.get("primary").equals("String"))
         {
+            keyType = "Integer";
             tree = new BPlusTree<Integer, String>();
             
             while(itr.hasNext())
@@ -59,8 +61,9 @@ public class SqlBTreeData
                 this.tree.put(Integer.parseInt((String)objKey), objValue.toString());
             }
             
-        }else if(keyType.equals("String") && primaryType.equals("Integer"))
+        }else if(map.get(columnName).equals("String") && map.get("primary").equals("Integer"))
         {
+            keyType = "String";
             tree = new BPlusTree<String, Integer>();
             
             while(itr.hasNext())
@@ -72,8 +75,9 @@ public class SqlBTreeData
                 this.tree.put(objKey.toString(), Integer.parseInt((String)objValue));
             }
             
-        }else if(keyType.equals("String") && primaryType.equals("String"))
+        }else if(map.get(columnName).equals("String") && map.get("primary").equals("String"))
         {
+            keyType = "String";
             tree = new BPlusTree<String, String>();
             
             while(itr.hasNext())
@@ -88,39 +92,12 @@ public class SqlBTreeData
         
     }
     
-    private void setType(String tableName, String columnName)
-    {
-        Object objKey, objPrimary;
-        
-        Iterator itr = SqlExecutionFactory.dataRecord.getHashTable(tableName).entrySet().iterator();
-        
-        Map.Entry<String, Object> tuple = (Map.Entry<String, Object>)itr.next();
-        objKey = ((Map<String, Object>)tuple.getValue()).get(columnName);
-        objPrimary = tuple.getKey();
-        
-        if(objKey.equals("INT"))
-        {
-            this.keyType = "Integer";
-        }else
-        {
-            this.keyType = "String";
-        }
-        
-        if(objPrimary.equals("INT"))
-        {
-            this.primaryType = "Integer";
-        }else
-        {
-            this.primaryType = "String";
-        }
-    }
-    
     public ArrayList<Object> get(String operator, Object key)
     {
-        if(key.equals("INT"))
+        if( keyType.equals("Integer") )
         {
             ArrayList<Object> answerSet = new ArrayList<Object>();
-            Node node = this.tree.get(Integer.parseInt((String)key));
+            Node node = this.tree.getRange(((Integer)key).intValue());
             int count = 0;
         
             if( operator.equals("<") )
@@ -131,7 +108,7 @@ public class SqlBTreeData
                     {
                         for(int i=0;i<node.numberOfKeys();i++)
                         {
-                            if( tree.less(node.getEntry(i).getKey(), Integer.parseInt((String)key)) )
+                            if( tree.less(node.getEntry(i).getKey(), ((Integer)key).intValue()) )
                             {
                                 answerSet.addAll(node.getEntry(i).getPrimaryKey());
                             }
@@ -154,7 +131,7 @@ public class SqlBTreeData
                     {
                         for(int i=0;i<node.numberOfKeys();i++)
                         {
-                            if( tree.less(node.getEntry(i).getKey(), Integer.parseInt((String)key)) || tree.equal(node.getEntry(i).getKey(), Integer.parseInt((String)key)))
+                            if( tree.less(node.getEntry(i).getKey(), ((Integer)key).intValue()) || tree.equal(node.getEntry(i).getKey(), ((Integer)key).intValue()) )
                             {
                                 answerSet.addAll(node.getEntry(i).getPrimaryKey());
                             }
@@ -177,7 +154,7 @@ public class SqlBTreeData
                     {
                         for(int i=0;i<node.numberOfKeys();i++)
                         {
-                            if( tree.less(Integer.parseInt((String)key), node.getEntry(i).getKey()) )
+                            if( tree.less(((Integer)key).intValue(), node.getEntry(i).getKey()) )
                             {
                                 answerSet.addAll(node.getEntry(i).getPrimaryKey());
                             }
@@ -200,7 +177,7 @@ public class SqlBTreeData
                     {
                         for(int i=0;i<node.numberOfKeys();i++)
                         {
-                            if( tree.less(Integer.parseInt((String)key), node.getEntry(i).getKey()) || tree.equal(Integer.parseInt((String)key), node.getEntry(i).getKey()) )
+                            if( tree.less(((Integer)key).intValue(), node.getEntry(i).getKey()) || tree.equal(((Integer)key).intValue(), node.getEntry(i).getKey()) )
                             {
                                 answerSet.addAll(node.getEntry(i).getPrimaryKey());
                             }
@@ -219,7 +196,7 @@ public class SqlBTreeData
             {
                 for(int i=0;i<node.numberOfKeys();i++)
                 {
-                    if( tree.equal(node.getEntry(i).getKey(), Integer.parseInt((String)key)) )
+                    if( tree.equal(node.getEntry(i).getKey(), ((Integer)key).intValue()) )
                     {
                         answerSet.addAll(node.getEntry(i).getPrimaryKey());
                     }
@@ -230,7 +207,7 @@ public class SqlBTreeData
         }else
         {
             ArrayList<Object> answerSet = new ArrayList<Object>();
-            Node node = this.tree.get(key.toString());
+            Node node = this.tree.getRange(key.toString());
             int count = 0;
         
             if( operator.equals("<") )

@@ -4,6 +4,7 @@
  */
 package databaseproject;
 
+import DataStructure.SqlBTreeData;
 import SqlReader.SqlDataReader;
 import SqlReader.SqlFileDataReader;
 import SqlContentFileManipulation.FileScanner;
@@ -38,7 +39,28 @@ public class DataBaseProject1 {
         SqlDataReader reader = new SqlFileDataReader("src/Resource/data.in");
         SqlExecutionFactory factory = new SqlExecutionFactory();
         
-        reader.openReader();
+        
+           //   This is a test program
+                    String table = "BOOK";
+                    String column = "PAGES";
+                    SqlBTreeData Btree = new SqlBTreeData(table, column);
+                    ArrayList<Object> result = Btree.get( ">", 500);
+                    Iterator it = result.iterator();
+                    while(it.hasNext())
+                    {
+                        Object obj = it.next();
+                        if(obj instanceof Integer)
+                        {
+                            System.out.printf("ID = %d\n",((Integer)obj).intValue());
+                        }else
+                        {
+                            System.out.printf("ID = %s\n",obj.toString());
+                        }
+                    }
+           //   End test program
+                    
+                    
+        /*reader.openReader();
         String instruc = new String();
         while(!(instruc = reader.readNextInstruc()).equals("")){
             factory.setInstruction(instruc);
@@ -47,6 +69,6 @@ public class DataBaseProject1 {
             } catch (Exception ex) {
                 System.out.println(ex);
             }
-        }
+        }*/
     }
 }

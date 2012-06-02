@@ -3,6 +3,7 @@
  * and open the template in the editor.
  */
 package databaseproject;
+import DataStructure.SqlBTreeData;
 import SqlFilter.SqlInstruction;
 import SqlInstructionFetcher.SqlCreateFetcher;
 import SqlInstructionFetcher.SqlCreateTableFetcher;
@@ -124,6 +125,7 @@ public class SqlExecutionFactory {
                 
                 if(selectFetcher.judgeCorrect()){
                     
+                    
                     SqlSelectTableExec sqlExec = new SqlSelectTableExec(selectFetcher);
                     
 //                    if (sqlExec.if_where_is_not_null()) {
@@ -133,8 +135,8 @@ public class SqlExecutionFactory {
 //                            System.out.println("未知的嚴重錯誤。");
                         }
 //                    }
-//                    sqlExec.exec();
-//                    sqlExec.display();
+                    sqlExec.exec();
+                    sqlExec.display();
                     
                     
                 }else{

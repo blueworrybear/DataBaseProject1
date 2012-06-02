@@ -5,6 +5,7 @@
 package DataStructure;
 
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -60,10 +61,8 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
     //  Node structure declaration
     public class Node
     {
-        private Entry[] keys;
-        private int keySize;
-        private Node[] children;
-        private int childrenSize;
+        private ArrayList<Entry> keys;
+        private ArrayList<Node> children;
         private int childIndex;
         private Node parent;
         private Node front;
@@ -71,10 +70,8 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
         
         public Node(Node parent, int maxKeySize, int maxChildSize)
         {
-            this.keys = new Entry[maxKeySize+1];
-            this.keySize = 0;
-            this.children = (Node[])new Object[maxChildSize+1];
-            this.childrenSize = 0;
+            this.keys = new ArrayList<Entry>();
+            this.children = new ArrayList<Node>();
             this.childIndex = 0;
             this.parent = parent;
             this.front = null;
@@ -84,50 +81,49 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
         
         public Entry getEntry(int index)
         {
-            if( index >= this.keySize )
+            if( index >= this.keys.size() )
             {
                 System.out.println("Error : Cannot get the KEY with null.");
                 return null;
             }else
             {
-                return this.keys[index];
+                return this.keys.get(index);
             }
         }
         
         private void addEntry(Entry entry)
         {
-            for(int i=0;i<this.keySize;i--)
+            for(int i=0;i<this.keys.size();i++)
             {
-                if( equal(this.keys[i].key, entry.key) )
+                if( equal(this.keys.get(i).key, entry.key) )
                 {
-                    this.keys[i].primaryKeySet.addAll(entry.primaryKeySet);
+                    this.keys.get(i).primaryKeySet.addAll(entry.primaryKeySet);
                     return;
                 }
             }
-            this.keys[this.keySize] = entry;
+            this.keys.add(entry);
             
-            for(int i=this.keySize;i>0;i--)
+            for(int i=this.keys.size()-1;i>0;i--)
             {
-                if( less(this.keys[i].key, this.keys[i-1].key) )
+                if( less(this.keys.get(i).key, this.keys.get(i-1).key) )
                 {
                     // swap
-                    Entry temp = this.keys[i-1];
-                    this.keys[i-1] = this.keys[i];
-                    this.keys[i] = temp;
+                    Entry temp = this.keys.get(i-1);
+                    this.keys.set(i-1, this.keys.get(i));
+                    this.keys.set(i, temp);
                 }
             }
-            this.keySize++;
         }
         
         private Node getChild(int index)
         {
-            if( index >= this.childrenSize )
+            if( index >= this.children.size() )
             {
                 System.out.println("Error : Cannot get the CHILD with null.");
                 return null;
             }else
             {
-                return this.children[index];
+                return this.children.get(index);
             }
         }
         
@@ -135,29 +131,22 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
         {
             child.parent = this;
             child.childIndex = index;
-            this.children[index] = child;
-            childrenSize++;
+            this.children.add(index, child);
         }
         
         private void removeChild(int index)
         {
-            if( index >= this.childrenSize )
-            {
-                System.out.println("Error : Cannot remove the CHILD with null.");
-            }else
-            {
-                this.children[index] = null;
-            }
+            this.children.set(index, null);
         }
         
         public int numberOfKeys()
         {
-            return this.keySize;
+            return this.keys.size();
         }
         
         public int numberOfChildren()
         {
-            return this.childrenSize;
+            return this.children.size();
         }
         
         public Node getFront()

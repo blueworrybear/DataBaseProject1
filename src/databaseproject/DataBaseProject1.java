@@ -41,10 +41,8 @@ public class DataBaseProject1 {
         
         
            //   This is a test program
-                    String table = "BOOK";
-                    String column = "PAGES";
-                    SqlBTreeData Btree = new SqlBTreeData(table, column);
-                    ArrayList<Object> result = Btree.get( ">", 500);
+                    SqlBTreeData Btree = new SqlBTreeData("AUTHOR", "AUTHORID");
+                    ArrayList<Object> result = Btree.get("<", 12);
                     Iterator it = result.iterator();
                     while(it.hasNext())
                     {

@@ -5,6 +5,7 @@
 package SqlManipulation;
 import DataStructure.SqlBTreeData;
 import SqlInstructionFetcher.*;
+import databaseproject.SqlExecutionFactory;
 import java.util.HashMap;
 import java.util.Hashtable;
 import model.*;
@@ -101,9 +102,14 @@ public class SqlSelectTableExec_BTree {
                     /*Check that the column type is as same as the value*/
                     if(col_type.equals("VARCHAR") || col_type.equals("CHAR")){
                         SqlBTreeData Btree = new SqlBTreeData(table, column);
-                        ArrayList result = Btree.get(_con.get_operator(), pure_value);
-                        it = result.iterator();
-                        /*Bug in the BTree, havn't finish*/
+                        ArrayList<Object> result = Btree.get(_con.get_operator(), pure_value);
+                        Iterator<Object> _it = result.iterator();
+                        HashMap<CombineKey,Object> _result = new HashMap<CombineKey, Object>();
+                        while (_it.hasNext()) {                            
+                            String s = (String)_it.next();
+                            _result.put(new CombineKey(s, ""), "");
+                        }
+                        return _result; 
                     }else{
                         throw new NoSuchMethodError("Can't compare Integer to String ("+col_type+":"+table+"."+column+" compare to String)");
                     }
@@ -111,21 +117,104 @@ public class SqlSelectTableExec_BTree {
             }else{
                 /*Case of pure value is Integer*/
                 if(col_type.equals("INT")){
-                    //Implement your code
+//                    SqlBTreeData Btree = new SqlBTreeData(table, column);
+//                    ArrayList<Object> result = Btree.get(_con.get_operator(), Integer.parseInt(pure_value));
+//                    Iterator<Object> _it = result.iterator();
+                    HashMap<CombineKey,Object> _result = new HashMap<CombineKey, Object>();
+//                    while (_it.hasNext()) {                        
+//                        String s = (String) _it.next();
+//                        _result.put(new CombineKey(s, ""), "");
+//                    }
+                    return _result;
                 }else{
                     throw new NoSuchMethodError("Can't compare Integer to String ("+col_type+":"+table+"."+column+" compare to Integer)");
                 }
             }
             
-        }else if(_con.get_operand1_tableName() != null && _con.get_operand2_tableName() != null){
+        }else if(_con.get_operand1_tableName() != null && _con.get_operand2_tableName() != null && !_con.get_operand1_is_integer() && !_con.get_operand2_is_integer()){
             /* The both value are from the table*/
-            //Implement your code
+            /*
+             * Try to figure out the data type of the two column.
+             */
+            ArrayList<Map<String,Object>> list = SqlColNameFileParser.parseColNameFile(_con.get_operand1_tableName());
+            Iterator it = list.iterator();
+            String type1 = new String();
+            while (it.hasNext() && type1.equals("")) {                
+                Map<String,Object> col = (Map<String,Object>) it.next();
+                if (col.get("Name").equals(_con.get_operand1_column().toUpperCase())) {
+                    if (col.get("Type").equals("INT")) {
+                        type1 = "INT";
+                    }else if(col.get("Type").equals("CHAR") || col.get("Type").equals("VARCHAR")){
+                        type1 = "STRING";
+                    }else{
+                        throw new InternalError("There is an unknow data type occur.("+col.get("Type")+")");
+                    }
+                }
+            }
+            list = SqlColNameFileParser.parseColNameFile(_con.get_operand2_tableName());
+            it = list.iterator();
+            String type2 = new String();
+            while (it.hasNext() && type1.equals("")) {                
+                Map<String,Object> col = (Map<String,Object>) it.next();
+                if (col.get("Name").equals(_con.get_operand2_column().toUpperCase())) {
+                    if (col.get("Type").equals("INT")) {
+                        type2 = "INT";
+                    }else if(col.get("Type").equals("CHAR") || col.get("Type").equals("VARCHAR")){
+                        type2 = "STRING";
+                    }else{
+                        throw new InternalError("There is an unknow data type occur.("+col.get("Type")+")");
+                    }
+                }
+            }//Fin.
+            
+            if (type1.equals(type2)) {
+                if(type1.equals("INT")){
+                    /*Handle the data type of Integer*/
+                    HashMap<CombineKey,Object> _result = new HashMap<CombineKey, Object>();
+                    Map<String,Object> table2 = SqlExecutionFactory.dataRecord.getHashTable(_con.get_operand2_tableName());
+                    Set set = table2.entrySet();
+                    Iterator _it = set.iterator();
+                    while (_it.hasNext()) {                
+                        Map.Entry<String,Object> entry = (Map.Entry<String,Object>) _it.next();
+                        HashMap<String,Object> tuple = (HashMap<String,Object>) entry.getValue();
+                        SqlBTreeData BTree = new SqlBTreeData(_con.get_operand1_tableName(), _con.get_operand1_column());
+                        ArrayList<Object> _list = BTree.get(_con.get_operator(), Integer.parseInt((String)tuple.get(_con.get_operand2_column())));
+                        Iterator tit = _list.iterator();
+                        while (tit.hasNext()) {                            
+                            String s = (String) tit.next();
+                            _result.put(new CombineKey(s, (String)tuple.get(_con.get_operand2_column())),"");
+                        }
+                    }
+                    return _result;
+                }else{
+                    /*Handle the data type of String*/
+                    if(_con.get_operator().equals("=") || _con.get_operator().equals("<>")){
+                        HashMap<CombineKey,Object> _result = new HashMap<CombineKey, Object>();
+                        Map<String,Object> table2 = SqlExecutionFactory.dataRecord.getHashTable(_con.get_operand2_tableName());
+                        Set set = table2.entrySet();
+                        Iterator _it = set.iterator();
+                        while (_it.hasNext()) {                
+                            Map.Entry<String,Object> entry = (Map.Entry<String,Object>) _it.next();
+                            HashMap<String,Object> tuple = (HashMap<String,Object>) entry.getValue();
+                            SqlBTreeData BTree = new SqlBTreeData(_con.get_operand1_tableName(), _con.get_operand1_column());
+                            ArrayList<Object> _list = BTree.get(_con.get_operator(), tuple.get(_con.get_operand2_column()));
+                            Iterator tit = _list.iterator();
+                            while (tit.hasNext()) {                            
+                                String s = (String) tit.next();
+                                _result.put(new CombineKey(s, (String)tuple.get(_con.get_operand2_column())),"");
+                            }
+                        }
+                        return _result;
+                    }else{
+                        throw new InternalError("The given select instruction is tring to compare string in lexical order.");
+                    }
+                }
+            }else{
+                throw new InternalError("The data types want to compare are not the same.("+type1+" != "+type2);
+            }
         }else{
             throw new UnknownError("Unexpected error in exeCondition.");
         }
-        
-        
-        return null;
     }
     
     /**
@@ -163,7 +252,12 @@ public class SqlSelectTableExec_BTree {
         }
         /*Collect the first group of result*/
         HashMap<CombineKey,Object> firstMap = this.exeCondition(first_con);
-        
+        Set set = firstMap.keySet();
+        Iterator it = set.iterator();
+        while (it.hasNext()) {            
+            CombineKey combine = (CombineKey) it.next();
+            System.out.println("key:"+combine.getKey1());
+        }
         /* 
          * @Start to fetch the result of condition 2 according to the result of condition 1.
          * @Using the firstKey to determine how to fetch condition2.
@@ -178,8 +272,6 @@ public class SqlSelectTableExec_BTree {
          */
         if(second_con.get_operand1_tableName() == null || second_con.get_operand2_tableName() == null ||second_con.get_operand1_is_integer() || second_con.get_operand2_is_integer()){
             /*The condition of compare with value not in the table*/
-            String pure_value;
-            String column;
             String table;
             boolean is_integer;
             /*Let the boolean function always is like Table.Colum (<|>|>=|<=|<>) Value*/

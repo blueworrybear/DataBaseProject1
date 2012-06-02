@@ -30,7 +30,7 @@ public class DataBaseProject1 {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        SqlSelectFetcher fetch = new SqlSelectFetcher("SSELECT BOOKID FROM BOOK WHERE TITLE = 'BIBLE' AND AUTHORID < 20");
+        SqlSelectFetcher fetch = new SqlSelectFetcher("SSELECT BOOKID FROM BOOK WHERE PAGES > AUTHORID AND AUTHORID < 20");
         SqlSelectTableExec_BTree bt = new SqlSelectTableExec_BTree(fetch);
         bt.exec();
         System.out.println("fin test");
@@ -43,18 +43,18 @@ public class DataBaseProject1 {
         SqlDataReader reader = new SqlFileDataReader("src/Resource/data.in");
         SqlExecutionFactory factory = new SqlExecutionFactory();
         
-        String table = "BOOK";
-                    String column = "TITLE";
-                    SqlBTreeData Btree = new SqlBTreeData(table, column);
-                    ArrayList<Object> result = Btree.get( "=", "BIBLE");
-                    Iterator it = result.iterator();
-                    while(it.hasNext())
-                    {
-                        Object obj = it.next();
-                        int ID = Integer.parseInt((String)obj);
-                        System.out.printf("ID = %d\n",ID);
-                    }
-        /*reader.openReader();
+//        String table = "BOOK";
+//                    String column = "TITLE";
+//                    SqlBTreeData Btree = new SqlBTreeData(table, column);
+//                    ArrayList<Object> result = Btree.get( "=", "BIBLE");
+//                    Iterator it = result.iterator();
+//                    while(it.hasNext())
+//                    {
+//                        Object obj = it.next();
+//                        int ID = Integer.parseInt((String)obj);
+//                        System.out.printf("ID = %d\n",ID);
+//                    }
+        reader.openReader();
         String instruc = new String();
         while(!(instruc = reader.readNextInstruc()).equals("")){
             factory.setInstruction(instruc);
@@ -63,6 +63,6 @@ public class DataBaseProject1 {
             } catch (Exception ex) {
                 System.out.println(ex);
             }
-        }*/
+        }
     }
 }

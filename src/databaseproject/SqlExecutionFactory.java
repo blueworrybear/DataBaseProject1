@@ -132,11 +132,11 @@ public class SqlExecutionFactory {
                         if(sqlExec.exec()){;
                             sqlExec.display();
                         }else{
-//                            System.out.println("未知的嚴重錯誤。");
+                            System.out.println("未知的嚴重錯誤。");
                         }
 //                    }
-                    sqlExec.exec();
-                    sqlExec.display();
+//                    sqlExec.exec();
+//                    sqlExec.display();
                     
                     
                 }else{

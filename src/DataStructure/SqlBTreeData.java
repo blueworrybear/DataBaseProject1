@@ -102,6 +102,10 @@ public class SqlBTreeData
         
             if( operator.equals("<") )
             {
+                if(node == null)
+                {
+                    
+                }
                 while(node != null)
                 {
                     if(count == 0)

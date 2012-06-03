@@ -30,10 +30,13 @@ public class DataBaseProject1 {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        SqlSelectFetcher fetch = new SqlSelectFetcher("SSELECT BOOKID FROM BOOK WHERE PAGES > AUTHORID AND AUTHORID < 20");
+        SqlSelectFetcher fetch = new SqlSelectFetcher("SELECT SUM(B.BOOKID) FROM BOOK AS B,AUTHOR AS A WHERE   400 > B.PAGES AND A.AUTHORID < 3");
         SqlSelectTableExec_BTree bt = new SqlSelectTableExec_BTree(fetch);
         bt.exec();
-        System.out.println("fin test");
+        bt.display();
+//        SqlBTreeData Btree = new SqlBTreeData("AUTHOR", "AUTHORID");
+//        ArrayList<Object> result = Btree.get("<", 3);
+//        System.out.println("fin test");
         /*
          * NOTICE:
          * The end of the reading SQL file is that 

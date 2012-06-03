@@ -12,6 +12,8 @@ import java.lang.NullPointerException;
 public class CombineKey extends Object{
     String key1;
     String key2;
+    String table1;
+    String table2;
     
     public CombineKey(){
         
@@ -33,11 +35,27 @@ public class CombineKey extends Object{
         this.key2 = _key;
     }
     
+    public void setTable1(String _table){
+        this.table1 = _table;
+    }
+    
+    public void setTable2(String _table){
+        this.table2 = _table;
+    }
+    
     public String getKey1(){
         return this.key1;
     }
     public String getKey2(){
         return this.key2;
+    }
+    
+    public String getTable1(){
+        return this.table1;
+    }
+    
+    public String getTable2(){
+        return this.table2;
     }
     
     @Override

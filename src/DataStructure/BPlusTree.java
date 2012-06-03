@@ -27,11 +27,12 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
     
     public BPlusTree()
     {
-        
+        this.root = new Node(null, this.maxKeySize, this.maxChildSize);
+        this.height = 0;
     }
     public int getHeight()
     {
-        return height;
+        return this.height;
     }
     
     
@@ -39,11 +40,16 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
     public class Entry<keyType extends Comparable<keyType>, valueType>
     {
         private keyType key;
-        private ArrayList<Object> primaryKeySet = new ArrayList<Object>();
+        private ArrayList<Object> primaryKeySet;
+        private Node left;
+        private Node right;
         public Entry(keyType key, valueType primaryKey)
         {
             this.key = key;
+            this.primaryKeySet = new ArrayList<Object>();
             this.primaryKeySet.add(primaryKey);
+            this.left = null;
+            this.right = null;
         }
         
         public keyType getKey()
@@ -55,6 +61,26 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
         {
             return this.primaryKeySet;
         }
+        
+        public void setLeftChild(Node node)
+        {
+            this.left = node;
+        }
+        
+        public void setRightChild(Node node)
+        {
+            this.right = node;
+        }
+        
+        public Node getLeftChild()
+        {
+            return this.left;
+        }
+        
+        public Node getRightChild()
+        {
+            return this.right;
+        }
     }
     //  End Entry declaration
     
@@ -62,22 +88,19 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
     public class Node
     {
         private ArrayList<Entry> keys;
-        private ArrayList<Node> children;
-        private int childIndex;
         private Node parent;
         private Node front;
         private Node next;
+        private boolean hasChild;
         
         public Node(Node parent, int maxKeySize, int maxChildSize)
         {
             this.keys = new ArrayList<Entry>();
-            this.children = new ArrayList<Node>();
-            this.childIndex = 0;
             this.parent = parent;
             this.front = null;
             this.next = null;
+            this.hasChild = false;
         }
-        
         
         public Entry getEntry(int index)
         {
@@ -115,38 +138,21 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
             }
         }
         
-        private Node getChild(int index)
+        public int getEntryLocation(Entry entry)
         {
-            if( index >= this.children.size() )
+            for(int i=0;i<this.numberOfKeys();i++)
             {
-                System.out.println("Error : Cannot get the CHILD with null.");
-                return null;
-            }else
-            {
-                return this.children.get(index);
+                if( equal(this.getEntry(i).key, entry.key) )
+                {
+                    return i;
+                }
             }
-        }
-        
-        private void addChild(Node child, int index)
-        {
-            child.parent = this;
-            child.childIndex = index;
-            this.children.add(index, child);
-        }
-        
-        private void removeChild(int index)
-        {
-            this.children.set(index, null);
+            return -1;
         }
         
         public int numberOfKeys()
         {
             return this.keys.size();
-        }
-        
-        public int numberOfChildren()
-        {
-            return this.children.size();
         }
         
         public Node getFront()
@@ -166,67 +172,60 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
     {
         Entry newEntry = new Entry<keyType, valueType>(key, value);
         
-        if(this.root == null)
+        Node node = this.root;
+        while(node != null)
         {
-            this.root = new Node(null, this.maxKeySize, this.maxChildSize);
-            this.root.addEntry(newEntry);
-        }else
-        {
-            Node node = this.root;
-            while(node != null)
+            if(node.hasChild == false)
             {
-                if(node.numberOfChildren() == 0)
+                node.addEntry(newEntry);
+                if(node.numberOfKeys() > this.maxKeySize)
                 {
-                    node.addEntry(newEntry);
-                    if(node.numberOfKeys() > this.maxKeySize)
-                    {
-                        this.split(node);
-                    }
-                    break;
-                }else
+                    this.split(node);
+                }
+                break;
+            }else
+            {
+                int i;
+                for(i=0;i<node.numberOfKeys();i++)
                 {
-                    int last = node.numberOfKeys()-1;
-                    if( this.less(newEntry.key, node.getEntry(0).key) )
+                    if( this.less(newEntry.key, node.getEntry(i).key) )
                     {
-                        node = node.getChild(0);
-                        continue;
-                    }
-                    
-                    for(int i=0;i<last;i++)
+                        node = node.getEntry(i).getLeftChild();
+                        break;
+                    }else if( this.equal(node.getEntry(i).key, newEntry.key) )
                     {
-                        if( this.lessEqual(node.getEntry(i).key, newEntry.key) && this.less(newEntry.key, node.getEntry(i+1).key) )
-                        {
-                            node = node.getChild(i+1);
-                            continue;
-                        }
-                    }
-                    
-                    if( this.lessEqual(node.getEntry(last).key, newEntry.key) )
-                    {
-                        node = node.getChild(last+1);
-                        continue;
+                        node = node.getEntry(i).getRightChild();
+                        break;
                     }
                 }
+                if(i == node.numberOfKeys() )
+                {
+                    node = node.getEntry(i-1).getRightChild();
+                }
             }
+               
         }
+        
     }
     private void split(Node node)
     {
         int medianIndex = node.numberOfKeys()/2;
         
         Node left = new Node(null, this.maxKeySize, this.maxChildSize);
+        Node right = new Node(null, this.maxKeySize, this.maxChildSize);
         
         for(int i=0;i<medianIndex;i++)
         {
             left.addEntry(node.getEntry(i));
-        }
-        
-        
-        Node right = new Node(null, this.maxKeySize, this.maxChildSize);
+        } 
         for(int i=medianIndex;i<node.numberOfKeys();i++)
         {
             right.addEntry(node.getEntry(i));
         }
+        right.getEntry(0).setLeftChild(null);
+        
+        node.getEntry(medianIndex).setLeftChild(left);
+        node.getEntry(medianIndex).setRightChild(right);
         
         left.next = right;
         right.front = left;
@@ -234,94 +233,116 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
         if(node.parent == null)
         {
             Node newRoot = new Node(null, this.maxKeySize, this.maxChildSize);
+            left.parent = newRoot;
+            right.parent = newRoot;
             newRoot.addEntry(node.getEntry(medianIndex));
-            newRoot.addChild(left, 0);
-            newRoot.addChild(right, 1);
-            root = newRoot;
-            
+            newRoot.hasChild = true;
+            this.root = newRoot;
         }else
         {
-            node.parent.removeChild(node.childIndex);
+            left.parent = node.parent;
+            right.parent = node.parent;
             node.parent.addEntry(node.getEntry(medianIndex));
-            node.parent.addChild(left, node.childIndex);
-            node.parent.addChild(right, node.childIndex+1);
+            
+            int location = node.parent.getEntryLocation(node.getEntry(medianIndex));
+            
+            if(location > 0)
+            {
+                node.parent.getEntry(location-1).setRightChild(left);
+                node.parent.getEntry(location).left.front = node.parent.getEntry(location-1).right;
+                node.parent.getEntry(location-1).right.next = node.parent.getEntry(location).left;
+            }
+            if(location < node.parent.numberOfKeys()-1)
+            {
+                node.parent.getEntry(location+1).setLeftChild(right);
+                node.parent.getEntry(location).right.next = node.parent.getEntry(location+1).left;
+                node.parent.getEntry(location+1).left.front = node.parent.getEntry(location).right;
+            }
             
             if(node.parent.numberOfKeys() > this.maxKeySize)
             {
-                split(node.parent);
+                this.split(node.parent);
             }
-            
         }
-        
+            
     }
+    
+    
     public Node get(keyType key)
     {
-        Node node = root;
+        Node node = this.root;
         while(node != null)
         {
-            int last = node.numberOfKeys()-1;
-            if( less(key, node.getEntry(0).key) )
+            if(node.hasChild == false)
             {
-                if(node.numberOfChildren() > 0)
+                for(int i=0;i<node.numberOfKeys();i++)
                 {
-                    node = node.getChild(0);
-                    continue;
-                }else
-                {
-                    break;
-                }
-            }
-                    
-            for(int i=0;i<last;i++)
-            {
-                if( equal(key, node.getEntry(i).key) )
-                {
-                    if(node.numberOfChildren() >0)
+                    if( this.equal(node.getEntry(i).key, key) )
                     {
-                        node = node.getChild(i+1);
-                        continue;
-                    }else
-                    {
+                        //System.out.println(node.numberOfKeys());
                         return node;
                     }
-                }else if( less(node.getEntry(i).key, key) && less(key, node.getEntry(i+1).key) )
+                }
+                return null;
+            }else
+            {
+                int i;
+                for(i=0;i<node.numberOfKeys();i++)
                 {
-                    if(node.numberOfChildren() > 0)
+                    if( this.less(key, node.getEntry(i).key) )
                     {
-                        node = node.getChild(i+1);
-                        continue;
-                    }else
+                        node = node.getEntry(i).getLeftChild();
+                        break;
+                    }else if( this.equal(node.getEntry(i).key, key) )
                     {
+                        node = node.getEntry(i).getRightChild();
                         break;
                     }
                 }
-            }
-                    
-            if( equal(node.getEntry(last).key, key) )
-            {
-                if(node.numberOfChildren() >0)
+                if(i == node.numberOfKeys() )
                 {
-                    node = node.getChild(last+1);
-                    continue;
-                }else
-                {
-                    return node;
-                }
-            }else if( less(node.getEntry(last).key, key) )
-            {
-                if(node.numberOfChildren() >0)
-                {
-                    node = node.getChild(last+1);
-                    continue;
-                }else
-                {
-                    break;
+                    node = node.getEntry(i-1).getRightChild();
                 }
             }
+            
         }
-        
         return null;
     }
+    
+    public Node getRange(keyType key)
+    {
+        Node node = this.root;
+        while(node != null)
+        {
+            if(node.hasChild == false)
+            {
+                return node;
+            }else
+            {
+                int i;
+                for(i=0;i<node.numberOfKeys();i++)
+                {
+                    if( this.less(key, node.getEntry(i).key) )
+                    {
+                        node = node.getEntry(i).getLeftChild();
+                        break;
+                    }else if( this.equal(node.getEntry(i).key, key) )
+                    {
+                        node = node.getEntry(i).getRightChild();
+                        break;
+                    }
+                }
+                if(i == node.numberOfKeys() )
+                {
+                    node = node.getEntry(i-1).getRightChild();
+                }
+            }
+            
+        }
+        return null;
+    }
+    
+    
     public boolean less(Comparable key1, Comparable key2)
     {
         return key1.compareTo(key2) < 0;

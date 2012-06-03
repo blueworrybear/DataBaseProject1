@@ -27,7 +27,71 @@ public class SqlColNameFileParser {
         //Empty Constructor
         
     }
-    
+    public static HashMap<String, String> parseColType(String tableName)
+    {
+        HashMap result = new HashMap<String, String>();
+        ArrayList<String> content = new ArrayList<String>();
+        String line, buffer;
+        String[] token;
+        boolean hasPrimary = false;
+        
+        File fpt = new File(tableName+".txt");
+        if(!fpt.exists())
+        {
+            System.out.println("This "+tableName+" table does not exist.");
+            return null;
+        }else
+        {
+            try
+            {
+                FileReader fReader = new FileReader(fpt);
+                BufferedReader bfReader = new BufferedReader(fReader);
+                
+                while((line = bfReader.readLine()) != null)
+                {
+                    content.add(line);
+                }
+                Iterator it = content.iterator();
+                while(it.hasNext())
+                {
+                    buffer = (String)it.next();
+                    buffer = (String)buffer.replaceAll(",","");
+                    token = buffer.split(":");
+                    
+                    if(token[1].equals("VARCHAR") || token[1].equals("CHAR"))
+                    {
+                        result.put(token[0], "String");
+                    }else
+                    {
+                        result.put(token[0], "Integer");
+                    }
+                    
+                    if(token[3].equals("true"))
+                    {
+                        if(token[1].equals("VARCHAR") || token[1].equals("CHAR"))
+                        {
+                            result.put("primary", "String");
+                        }else
+                        {
+                            result.put("primary", "Integer");
+                        }
+                        hasPrimary = true;
+                    }
+                }
+                if(hasPrimary == false)
+                {
+                    result.put("primary", "String");
+                }
+                
+            }catch(IOException e)
+            {
+                System.out.println(e);
+            }
+            
+            return result;
+        }
+        
+    }
     
     public static ArrayList<Map<String,Object>> parseColNameFile(String tableName){
         

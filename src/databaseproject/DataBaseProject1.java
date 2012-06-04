@@ -42,7 +42,7 @@ public class DataBaseProject1 {
         
            //   This is a test program
                     SqlBTreeData Btree = new SqlBTreeData("AUTHOR", "AUTHORID");
-                    ArrayList<Object> result = Btree.get("<", 12);
+                    ArrayList<Object> result = Btree.get("<", 22);
                     Iterator it = result.iterator();
                     while(it.hasNext())
                     {

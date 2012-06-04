@@ -28,7 +28,7 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
     public BPlusTree()
     {
         this.root = new Node(null, this.maxKeySize, this.maxChildSize);
-        this.height = 0;
+        this.height = 1;
     }
     public int getHeight()
     {
@@ -91,7 +91,6 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
         private Node parent;
         private Node front;
         private Node next;
-        private boolean hasChild;
         
         public Node(Node parent, int maxKeySize, int maxChildSize)
         {
@@ -99,7 +98,6 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
             this.parent = parent;
             this.front = null;
             this.next = null;
-            this.hasChild = false;
         }
         
         public Entry getEntry(int index)
@@ -172,10 +170,11 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
     {
         Entry newEntry = new Entry<keyType, valueType>(key, value);
         Node node = this.root;
+        int count = 1;
         
         while(node != null)
         {
-            if(node.hasChild == false)
+            if(count == this.height)
             {
                 node.addEntry(newEntry);
                 if(node.numberOfKeys() > this.maxKeySize)
@@ -203,6 +202,7 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
                         break;
                     }
                 }
+                count++;
             }
                
         }
@@ -223,10 +223,8 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
         {
             right.addEntry(node.getEntry(i));
         }
-        right.getEntry(0).setLeftChild(null);
         
-        node.getEntry(medianIndex).setLeftChild(left);
-        node.getEntry(medianIndex).setRightChild(right);
+        right.getEntry(0).setLeftChild(null);
         
         left.next = right;
         right.front = left;
@@ -234,30 +232,51 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
         if(node.parent == null)
         {
             Node newRoot = new Node(null, this.maxKeySize, this.maxChildSize);
-            left.parent = newRoot;
-            right.parent = newRoot;
             newRoot.addEntry(node.getEntry(medianIndex));
-            newRoot.hasChild = true;
+            newRoot.getEntry(0).left = left;
+            newRoot.getEntry(0).right = right;
+            newRoot.getEntry(0).left.parent = newRoot;
+            newRoot.getEntry(0).right.parent = newRoot;
             this.root = newRoot;
+            this.height++;
         }else
         {
-            left.parent = node.parent;
-            right.parent = node.parent;
             node.parent.addEntry(node.getEntry(medianIndex));
             
             int location = node.parent.getEntryLocation(node.getEntry(medianIndex));
+            node.parent.getEntry(location).left = left;
+            node.parent.getEntry(location).right = right;
+            node.parent.getEntry(location).left.parent = node.parent;
+            node.parent.getEntry(location).right.parent = node.parent;
             
-            if(location > 0)
+            if(node.parent.numberOfKeys() > 1 && location == 0)
             {
-                node.parent.getEntry(location-1).setRightChild(left);
-                node.parent.getEntry(location).left.front = node.parent.getEntry(location-1).left;
-                node.parent.getEntry(location-1).left.next = node.parent.getEntry(location).left;
-            }
-            if(location < node.parent.numberOfKeys()-1)
+                node.parent.getEntry(location+1).left = right;
+                node.parent.getEntry(location+1).right.front = node.parent.getEntry(location+1).left;
+                node.parent.getEntry(location+1).left.next = node.parent.getEntry(location+1).right;
+                
+            }else if(node.parent.numberOfKeys() > 1 && location == node.parent.numberOfKeys()-1)
             {
-                node.parent.getEntry(location+1).setLeftChild(right);
-                node.parent.getEntry(location).right.next = node.parent.getEntry(location+1).right;
-                node.parent.getEntry(location+1).right.front = node.parent.getEntry(location).right;
+                node.parent.getEntry(location-1).right = left;
+                node.parent.getEntry(location-1).right.front = node.parent.getEntry(location-1).left;
+                node.parent.getEntry(location-1).left.next = node.parent.getEntry(location-1).right;
+                
+                if( node.parent.next != null )
+                {
+                    node.parent.getEntry(location).right.next = node.parent.next.getEntry(0).right;
+                    node.parent.next.getEntry(0).right.front = node.parent.getEntry(location).right;
+                }
+                
+            }else if(0 < location && location < node.parent.numberOfKeys()-1)
+            {
+                node.parent.getEntry(location-1).right = left;
+                node.parent.getEntry(location+1).left = right;
+                
+                node.parent.getEntry(location-1).right.front = node.parent.getEntry(location-1).left;
+                node.parent.getEntry(location-1).left.next = node.parent.getEntry(location-1).right;
+                
+                node.parent.getEntry(location+1).right.front = node.parent.getEntry(location+1).left;
+                node.parent.getEntry(location+1).left.next = node.parent.getEntry(location+1).right;
             }
             
             if(node.parent.numberOfKeys() > this.maxKeySize)
@@ -273,9 +292,10 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
     public Node get(keyType key)
     {
         Node node = this.root;
+        int count = 1;
         while(node != null)
         {
-            if(node.hasChild == false)
+            if(count == this.height)
             {
                 for(int i=0;i<node.numberOfKeys();i++)
                 {
@@ -306,7 +326,9 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
                         break;
                     }
                 }
+                count++;
             }
+            
             
         }
         return null;
@@ -315,9 +337,10 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
     public Node getRange(keyType key)
     {
         Node node = this.root;
+        int count = 1;
         while(node != null)
         {
-            if(node.hasChild == false)
+            if(count == this.height)
             {
                 return node;
             }else
@@ -340,6 +363,8 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
                         break;
                     }
                 }
+                count++;
+                
             }
             
         }

@@ -23,6 +23,7 @@ public class SqlBTreeData
     public SqlBTreeData(String tableName, String columnName)
     {
         this.createBPlusTree(tableName, columnName);
+        System.out.println("The B+tree's height is "+this.tree.getHeight()+".");
     }
     
     private void createBPlusTree(String tableName, String columnName)
@@ -43,7 +44,7 @@ public class SqlBTreeData
                 Map.Entry<String, Object> tuple = (Map.Entry<String, Object>)itr.next();
                 objKey = ((Map<String, Object>)tuple.getValue()).get(columnName);
                 objValue = tuple.getKey();
-                
+                //System.out.println(Integer.parseInt((String)objKey));
                 this.tree.put(Integer.parseInt((String)objKey), Integer.parseInt((String)objValue));
             }
             
@@ -98,16 +99,14 @@ public class SqlBTreeData
         {
             ArrayList<Object> answerSet = new ArrayList<Object>();
             Node node = this.tree.getRange(((Integer)key).intValue());
+            
             int count = 0;
         
             if( operator.equals("<") )
             {
-                if(node == null)
-                {
-                    
-                }
                 while(node != null)
                 {
+                    System.out.println("The finding node has "+node.numberOfKeys()+" keys.");
                     if(count == 0)
                     {
                         for(int i=0;i<node.numberOfKeys();i++)

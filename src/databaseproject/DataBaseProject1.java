@@ -11,6 +11,7 @@ import SqlContentFileManipulation.FileScanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import SqlInstructionFetcher.SqlSelectFetcher;
+import SqlManipulation.SqlSelectTableExec_BTree;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,7 +30,13 @@ public class DataBaseProject1 {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        
+        SqlSelectFetcher fetch = new SqlSelectFetcher("SELECT SUM(B.BOOKID) FROM BOOK AS B,AUTHOR AS A WHERE   400 > B.PAGES AND A.AUTHORID < 3");
+        SqlSelectTableExec_BTree bt = new SqlSelectTableExec_BTree(fetch);
+        bt.exec();
+        bt.display();
+//        SqlBTreeData Btree = new SqlBTreeData("AUTHOR", "AUTHORID");
+//        ArrayList<Object> result = Btree.get("<", 3);
+//        System.out.println("fin test");
         /*
          * NOTICE:
          * The end of the reading SQL file is that 
@@ -67,6 +74,6 @@ public class DataBaseProject1 {
             } catch (Exception ex) {
                 System.out.println(ex);
             }
-        }*/
+        }
     }
 }

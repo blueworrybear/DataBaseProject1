@@ -25,6 +25,10 @@ public abstract class SqlFetcher {
         return SqlInstrucInterpreter.interpreteStatementType(this.statement);
     }
     
+    /**
+     * Determine the instruction type.
+     * @return 
+     */
     public String fetchCommandString(){
         String patternStr = "^[A-Z]+( INTO)?";
         Pattern pattern = Pattern.compile(patternStr);

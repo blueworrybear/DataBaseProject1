@@ -130,6 +130,10 @@ public class SqlSelectFetcher extends SqlFetcher{
         return list;
     }
     
+    /**
+     * This function return and or.
+     * @return 
+     */
     public String fetchBooleanFunction(){
         this.fetchTableMapping();
         String patternStr = "\\s(AND|OR)\\s";
@@ -156,7 +160,7 @@ public class SqlSelectFetcher extends SqlFetcher{
             return null;
         }
         
-        patternStr = "\\s?((\\w+\\.\\w+)|((\'|\")(.+?(\\\\\')*(\\\\\")*)+?(\'|\")|\\w+)|\\d+)\\s?(=|>|<|<=|>=)\\s?((\\w+\\.\\w+)|((\'|\")(.+?(\\\\\')*(\\\\\")*)+?(\'|\"))|\\d+|\\w+)\\s?,?";
+        patternStr = "\\s?((\\w+\\.\\w+)|((\'|\")(.+?(\\\\\')*(\\\\\")*)+?(\'|\")|\\w+)|\\d+)\\s?(=|>|<|<=|>=|<>)\\s?((\\w+\\.\\w+)|((\'|\")(.+?(\\\\\')*(\\\\\")*)+?(\'|\"))|\\d+|\\w+)\\s?,?";
         pattern = Pattern.compile(patternStr);
         matcher = pattern.matcher(instruciton);
         
@@ -233,19 +237,25 @@ public class SqlSelectFetcher extends SqlFetcher{
                 }
                 i++;
             }
-            _patternStr = "(>|<|=|<=|>=)";
+            _patternStr = "(<>|>|<|=|<=|>=)";
             _pattern = Pattern.compile(_patternStr);
             _matcher = _pattern.matcher(matcher.group(0));
             if (_matcher.find()) {
                 where.set_operator(_matcher.group(0));
             }
-//            System.out.println(where.get_operand1_tableName()+"."+where.get_operand1_column()+where.get_operator()+where.get_operand2_tableName()+"."+where.get_operand2_column());
+//            System.out.println(where.get_operand1_tableName()+"."+
+//                  System  where.get_operand1_column()+where.get_operator()+
+//                    where.get_operand2_tableName()+"."+where.get_operand2_column());
             
             list.add(where);
         }
         return list;
     }
     
+    /**
+     * return the tables that reference by select. 
+     * @return 
+     */
      public ArrayList<String> fetchFromExpressions(){
         //  need to be implement
          ArrayList<String> result = new ArrayList<String>();
@@ -342,7 +352,7 @@ public class SqlSelectFetcher extends SqlFetcher{
             /*Check for the WHERE part is correct*/
             patternStr = "\\w+\\.\\w+";
             pattern = Pattern.compile(patternStr);
-            matcher = pattern.matcher(this.statement.toUpperCase().replaceAll("(\"|\')(.+?(\\\\\')*(\\\\\")*).?(\"|\')", " "));
+            matcher = pattern.matcher(this.statement.toUpperCase().replaceAll("(\"|\')(.+?(\\\\\')*(\\\\\")*)+?(\"|\')", " "));
             while (matcher.find()) {                
                 String table = matcher.group().replaceAll("\\.\\w+", "");
 //                System.out.println(matcher.group());
@@ -362,20 +372,21 @@ public class SqlSelectFetcher extends SqlFetcher{
                 }
                 
             }
+//            System.out.println(this.statement);
             /*Check for where part 2*/
             patternStr = "WHERE.+?;$?";
             pattern = Pattern.compile(patternStr);
             matcher = pattern.matcher(this.statement.toUpperCase());
             if (matcher.find() && this.tableNumber > 1) {
 //                System.out.println(matcher.group());
-                String set = matcher.group().replaceAll("(\"|\')(.+?(\\\\\')*(\\\\\")*).?(\"|\')", " ").replaceAll("\\d+", " ").replaceAll("^WHERE|;$", "").replaceAll("<|=|>|,", " ").replaceAll("\\s+", " ");
+                String set = matcher.group().replaceAll("(\"|\')(.+?(\\\\\')*(\\\\\")*)+?(\"|\')", " ").replaceAll("\\d+", " ").replaceAll("^WHERE|;$", "").replaceAll("<|=|>|,", " ").replaceAll("\\s+", " ");
                 String[] list = set.split(" ");
                 for (String S : list) {
                     if (!(S.equals(" ") || S.equals("AND") || S.equals("OR")||S.equals(""))) {
                         patternStr = "\\w+\\.\\w+";
                         pattern = Pattern.compile(patternStr);
                         matcher = pattern.matcher(S);
-//                        System.out.println(S);
+//                        System.out.println("S"+S);
                         if (!matcher.find()) {
                             boolean pass = false;
                             int count = 0;
@@ -416,7 +427,7 @@ public class SqlSelectFetcher extends SqlFetcher{
         }
         
         /*bonus check*/
-        patternStr = "((<>)|(><))";
+        patternStr = "(><)";
         pattern = Pattern.compile(patternStr);
         matcher = pattern.matcher(this.statement);
         if(matcher.find()){

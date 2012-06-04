@@ -104,6 +104,10 @@ public class SqlBTreeData
         
             if( operator.equals("<") )
             {
+                if(node == null)
+                {
+                    
+                }
                 while(node != null)
                 {
                     System.out.println("The finding node has "+node.numberOfKeys()+" keys.");

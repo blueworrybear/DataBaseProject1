@@ -82,7 +82,7 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
             values = values.replaceAll("^VALUES", "");
 //            values = values.replaceAll("\\s", "");
 //            System.out.println(values);
-            String _patternStr = "([\'\"](.+?(\'\'\')*(\"\"\")*)+?[\'\"]|\\d+)";
+            String _patternStr = "([\'\"](.+?(\\\\\')*(\\\\\")*)+?[\'\"]|\\d+)";
             Pattern _pattern = Pattern.compile(_patternStr);
             Matcher _matcher = _pattern.matcher(values);
             while (_matcher.find()) {                
@@ -93,7 +93,7 @@ public class SqlInsertIntoFetcher extends SqlFetcher{
                 }else{
                     insertValues.add(value.replaceAll("^\"|\"$|^'|'$", ""));
                 }
-//                System.out.println("value:"+value);
+                System.out.println("value:"+value);
             }
         }
         return insertValues;

@@ -30,7 +30,7 @@ public class DataBaseProject1 {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        SqlSelectFetcher fetch = new SqlSelectFetcher("SELECT SUM(B.BOOKID) FROM BOOK AS B,AUTHOR AS A WHERE   400 > B.PAGES AND A.AUTHORID < 3");
+        /*SqlSelectFetcher fetch = new SqlSelectFetcher("SELECT SUM(B.BOOKID) FROM BOOK AS B,AUTHOR AS A WHERE   400 > B.PAGES AND A.AUTHORID < 3");
         SqlSelectTableExec_BTree bt = new SqlSelectTableExec_BTree(fetch);
         bt.exec();
         bt.display();
@@ -42,9 +42,9 @@ public class DataBaseProject1 {
          * The end of the reading SQL file is that 
          * if the reader read the null value.
          */
-        System.out.println("Begin Main Function");
+        /*System.out.println("Begin Main Function");
         SqlDataReader reader = new SqlFileDataReader("src/Resource/data.in");
-        SqlExecutionFactory factory = new SqlExecutionFactory();
+        SqlExecutionFactory factory = new SqlExecutionFactory();*/
         
         
            //   This is a test program
@@ -74,6 +74,6 @@ public class DataBaseProject1 {
             } catch (Exception ex) {
                 System.out.println(ex);
             }
-        }
+        }*/
     }
 }

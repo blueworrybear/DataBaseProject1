@@ -43,6 +43,12 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
         private ArrayList<Object> primaryKeySet;
         private Node left;
         private Node right;
+        public Entry(keyType key)
+        {
+            this.key = key;
+            this.left = null;
+            this.right = null;
+        }
         public Entry(keyType key, valueType primaryKey)
         {
             this.key = key;
@@ -112,17 +118,18 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
             }
         }
         
-        private void addEntry(Entry entry)
+        private int addEntry(Entry entry)
         {
             for(int i=0;i<this.keys.size();i++)
             {
                 if( equal(this.keys.get(i).key, entry.key) )
                 {
                     this.keys.get(i).primaryKeySet.addAll(entry.primaryKeySet);
-                    return;
+                    return i;
                 }
             }
             this.keys.add(entry);
+            int pos = this.keys.size()-1;
             
             for(int i=this.keys.size()-1;i>0;i--)
             {
@@ -132,8 +139,10 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
                     Entry temp = this.keys.get(i-1);
                     this.keys.set(i-1, this.keys.get(i));
                     this.keys.set(i, temp);
+                    pos = i-1;
                 }
             }
+            return pos;
         }
         
         public int getEntryLocation(Entry entry)
@@ -214,44 +223,65 @@ public class BPlusTree<keyType extends Comparable<keyType>, valueType>
         
         Node left = new Node(null, this.maxKeySize, this.maxChildSize);
         Node right = new Node(null, this.maxKeySize, this.maxChildSize);
+        Entry indexEntry = new Entry<keyType, valueType>((keyType)node.getEntry(medianIndex).key);
         
         for(int i=0;i<medianIndex;i++)
         {
             left.addEntry(node.getEntry(i));
+            if(left.getEntry(i).left != null)
+            {
+                left.getEntry(i).left.parent = left;
+            }
+            if(left.getEntry(i).right != null)
+            {
+                left.getEntry(i).right.parent = left;
+            }
         } 
         for(int i=medianIndex;i<node.numberOfKeys();i++)
         {
             right.addEntry(node.getEntry(i));
+            if(i > medianIndex)
+            {
+                if(right.getEntry(i-medianIndex).left != null)
+                {
+                    right.getEntry(i-medianIndex).left.parent = right;
+                }
+                if(right.getEntry(i-medianIndex).right != null)
+                {
+                    right.getEntry(i-medianIndex).right.parent = right;
+                }
+            }
+            
         }
-        
-        right.getEntry(0).setLeftChild(null);
-        
-        left.next = right;
-        right.front = left;
         
         if(node.parent == null)
         {
             Node newRoot = new Node(null, this.maxKeySize, this.maxChildSize);
-            newRoot.addEntry(node.getEntry(medianIndex));
+            newRoot.addEntry(indexEntry);
             newRoot.getEntry(0).left = left;
             newRoot.getEntry(0).right = right;
             newRoot.getEntry(0).left.parent = newRoot;
             newRoot.getEntry(0).right.parent = newRoot;
+            newRoot.getEntry(0).left.next = newRoot.getEntry(0).right;
+            newRoot.getEntry(0).right.front = newRoot.getEntry(0).left;
+            
             this.root = newRoot;
             this.height++;
         }else
         {
-            node.parent.addEntry(node.getEntry(medianIndex));
+            int location = node.parent.addEntry(indexEntry);
             
-            int location = node.parent.getEntryLocation(node.getEntry(medianIndex));
             node.parent.getEntry(location).left = left;
             node.parent.getEntry(location).right = right;
             node.parent.getEntry(location).left.parent = node.parent;
             node.parent.getEntry(location).right.parent = node.parent;
+            node.parent.getEntry(location).left.next = node.parent.getEntry(location).right;
+            node.parent.getEntry(location).right.front = node.parent.getEntry(location).left;
             
             if(node.parent.numberOfKeys() > 1 && location == 0)
             {
                 node.parent.getEntry(location+1).left = right;
+                
                 node.parent.getEntry(location+1).right.front = node.parent.getEntry(location+1).left;
                 node.parent.getEntry(location+1).left.next = node.parent.getEntry(location+1).right;
                 

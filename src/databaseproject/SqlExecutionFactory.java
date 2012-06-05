@@ -4,6 +4,7 @@
  */
 package databaseproject;
 import DataStructure.SqlBTreeData;
+import DataStructure.SqlHashMapData;
 import SqlFilter.SqlInstruction;
 import SqlInstructionFetcher.SqlCreateFetcher;
 import SqlInstructionFetcher.SqlCreateTableFetcher;
@@ -12,6 +13,7 @@ import SqlInstructionFetcher.SqlSelectFetcher;
 import SqlManipulation.SqlCreateTableExec;
 import SqlManipulation.SqlInsertTableExec;
 import SqlManipulation.SqlSelectTableExec;
+import SqlManipulation.SqlSelectTableExec_HashTable;
 import java.io.File;
 import java.io.FileWriter;
 import java.lang.Exception;
@@ -125,8 +127,17 @@ public class SqlExecutionFactory {
                 
                 if(selectFetcher.judgeCorrect()){
                     
+                    SqlHashMapData mapData = new SqlHashMapData();
                     
-                    SqlSelectTableExec sqlExec = new SqlSelectTableExec(selectFetcher);
+                    SqlSelectTableExec_HashTable sqlExec = new SqlSelectTableExec_HashTable(selectFetcher);
+                    
+                    //mapData.printContent("TEST");
+                    
+                    if(sqlExec.exec()){
+                        sqlExec.display();
+                    }
+                    
+                  /*  SqlSelectTableExec sqlExec = new SqlSelectTableExec(selectFetcher);
                     
 //                    if (sqlExec.if_where_is_not_null()) {
                         if(sqlExec.exec()){;
@@ -136,7 +147,7 @@ public class SqlExecutionFactory {
                         }
 //                    }
 //                    sqlExec.exec();
-//                    sqlExec.display();
+//                    sqlExec.display();*/
                     
                     
                 }else{

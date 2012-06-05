@@ -55,4 +55,9 @@ public class SelectColumn {
     {
         return this.sum;
     }
+    
+    public String toString(){
+        return "Column = "+column+"\nTable = "+table+"\nAggregation = "+aggregation+"\n";
+    }
+    
 }

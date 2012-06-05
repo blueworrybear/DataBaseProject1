@@ -1,0 +1,3 @@
+ID:INT:0:true,
+NAME:CHAR:10:false,
+DESC:VARCHAR:50:false,
